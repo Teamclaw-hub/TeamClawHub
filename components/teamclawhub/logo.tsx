@@ -1,7 +1,9 @@
 import { cn } from "@/lib/utils";
+import { TeamClawMark } from "@/components/teamclawhub/teamclaw-mark";
 
 export function TeamClawHubLogo({
   className,
+  iconClassName,
   showText = true,
   textClassName
 }: {
@@ -12,7 +14,7 @@ export function TeamClawHubLogo({
 }) {
   return (
     <span className={cn("inline-flex items-center gap-2 text-2xl font-bold", className)}>
-      <span className="text-3xl">🌊</span>
+      <TeamClawMark className={cn("h-9 w-9", iconClassName)} />
       {showText ? (
         <span
           className={cn(
