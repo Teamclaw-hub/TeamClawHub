@@ -4,7 +4,7 @@
 
 TeamClawHub is where TeamClaw teams publish their workflow templates so others can browse, star, download, and remix them. Think of it as a "workflow app store" for multi-agent orchestration.
 
-> **Live site**: [teamclawhub.vercel.app](https://teamclawhub.vercel.app)
+> **Live site**: [teamclawhub.com](https://teamclawhub.com)
 
 ---
 
@@ -36,16 +36,16 @@ TeamClawHub is where TeamClaw teams publish their workflow templates so others c
 ### 🖥️ CLI-Friendly API
 ```bash
 # List all workflows (JSON)
-curl https://teamclawhub.vercel.app/api/cli/workflows
+curl https://teamclawhub.com/api/cli/workflows
 
 # Pretty-printed table for terminal
-curl -H 'Accept: text/plain' https://teamclawhub.vercel.app/api/cli/workflows
+curl -H 'Accept: text/plain' https://teamclawhub.com/api/cli/workflows
 
 # Search by keyword
-curl 'https://teamclawhub.vercel.app/api/cli/workflows?search=creative'
+curl 'https://teamclawhub.com/api/cli/workflows?search=creative'
 
 # Download a workflow as ZIP
-curl -L -o workflow.zip https://teamclawhub.vercel.app/api/workflows/<id>/download
+curl -L -o workflow.zip https://teamclawhub.com/api/workflows/<id>/download
 ```
 
 ---

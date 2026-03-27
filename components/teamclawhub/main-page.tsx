@@ -296,7 +296,7 @@ export function MainPage() {
   }
 
   function buildDownloadCommand(workflow: Workflow): string {
-    const origin = typeof window !== "undefined" ? window.location.origin : "https://teamclawhub.vercel.app";
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://teamclawhub.com";
     const safeTitle = (workflow.title || "workflow")
       .toLowerCase()
       .replace(/[\s\u2014]+/g, "_")

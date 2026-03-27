@@ -1378,7 +1378,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
 
     return { oasis: oasisAgents, openclaw: openclawAgents, external: externalAgentsList, custom: customAgentsList };
   }, [workflow, internalAgents, externalAgents]);
-  const curlDownloadUrl = `${siteOrigin || "https://teamclawhub.vercel.app"}/api/workflows/${workflowId}/download`;
+  const curlDownloadUrl = `${siteOrigin || "https://teamclawhub.com"}/api/workflows/${workflowId}/download`;
   const curlSafeTitle = (workflow?.title || "workflow")
     .toLowerCase()
     .replace(/[\s\u2014]+/g, "_")
