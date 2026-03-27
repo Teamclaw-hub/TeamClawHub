@@ -1,4 +1,4 @@
-import { WorkflowDetailPage } from "@/components/flowhub/workflow-detail-page";
+import { WorkflowDetailPage } from "@/components/teamclawhub/workflow-detail-page";
 
 export default async function WorkflowPage({
   params

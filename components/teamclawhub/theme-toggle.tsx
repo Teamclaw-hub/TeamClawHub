@@ -12,7 +12,7 @@ export function ThemeToggle() {
 
   // Initialize theme from localStorage on mount
   useEffect(() => {
-    const stored = localStorage.getItem("flowhub-theme");
+    const stored = localStorage.getItem("teamclawhub-theme");
     const prefersDark = stored === "dark";
     setIsDark(prefersDark);
     if (prefersDark) {
@@ -27,10 +27,10 @@ export function ThemeToggle() {
     setIsDark(next);
     if (next) {
       document.documentElement.classList.add("dark");
-      localStorage.setItem("flowhub-theme", "dark");
+      localStorage.setItem("teamclawhub-theme", "dark");
     } else {
       document.documentElement.classList.remove("dark");
-      localStorage.setItem("flowhub-theme", "light");
+      localStorage.setItem("teamclawhub-theme", "light");
     }
   }
 

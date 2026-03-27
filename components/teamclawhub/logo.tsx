@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-export function FlowhubLogo({
+export function TeamClawHubLogo({
   className,
   showText = true,
   textClassName
@@ -16,11 +16,11 @@ export function FlowhubLogo({
       {showText ? (
         <span
           className={cn(
-            "flowhub-logo-text",
+            "teamclawhub-logo-text",
             textClassName
           )}
         >
-          Teamclaw Hub
+          TeamClawHub
         </span>
       ) : null}
     </span>

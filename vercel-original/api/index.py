@@ -1,12 +1,12 @@
-"""Vercel Python entrypoint for legacy FlowHub Flask app."""
+"""Vercel Python entrypoint for legacy TeamClawHub Flask app."""
 
 from pathlib import Path
 import importlib.util
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-LEGACY_APP = BASE_DIR / "flowhub.py"
+LEGACY_APP = BASE_DIR / "teamclawhub.py"
 
-spec = importlib.util.spec_from_file_location("legacy_flowhub", LEGACY_APP)
+spec = importlib.util.spec_from_file_location("legacy_teamclawhub", LEGACY_APP)
 if spec is None or spec.loader is None:
     raise RuntimeError(f"Cannot load legacy app from {LEGACY_APP}")
 

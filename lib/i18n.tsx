@@ -5,7 +5,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from "rea
 
 export type Locale = "en" | "zh";
 
-const STORAGE_KEY = "flowhub_locale";
+const STORAGE_KEY = "teamclawhub_locale";
 
 function getInitialLocale(): Locale {
   if (typeof window !== "undefined") {
@@ -119,7 +119,7 @@ const translations: Record<string, Record<Locale, string>> = {
   "profile.noStarredHint": { en: "Go to the Explore page to discover and star workflows!", zh: "前往浏览页面发现并收藏工作流！" },
   "profile.explore": { en: "Explore page", zh: "浏览页面" },
   "profile.settingsTitle": { en: "⚙️ Profile Settings", zh: "⚙️ 个人设置" },
-"profile.settingsDesc": { en: "Customize your Teamclaw Hub profile", zh: "自定义您的 Teamclaw Hub 主页" },
+"profile.settingsDesc": { en: "Customize your TeamClawHub profile", zh: "自定义您的 TeamClawHub 主页" },
   "profile.displayName": { en: "Display Name", zh: "显示名称" },
   "profile.displayNamePlaceholder": { en: "Your display name", zh: "您的显示名称" },
   "profile.bio": { en: "Bio", zh: "简介" },
@@ -136,7 +136,7 @@ const translations: Record<string, Record<Locale, string>> = {
 
   // ── Profile CRUD Dialogs ──
   "crud.publishNew": { en: "Publish New Workflow", zh: "发布新工作流" },
-"crud.publishNewDesc": { en: "Fill in the details to publish a new workflow to Teamclaw Hub.", zh: "填写详细信息以将新工作流发布到 Teamclaw Hub。" },
+"crud.publishNewDesc": { en: "Fill in the details to publish a new workflow to TeamClawHub.", zh: "填写详细信息以将新工作流发布到 TeamClawHub。" },
   "crud.editWorkflow": { en: "Edit Workflow", zh: "编辑工作流" },
   "crud.editWorkflowDesc": { en: "Update the details of", zh: "更新工作流详情" },
   "crud.deleteWorkflow": { en: "Delete Workflow", zh: "删除工作流" },
@@ -153,7 +153,7 @@ const translations: Record<string, Record<Locale, string>> = {
 
   // ── Settings Dialog ──
   "settings.title": { en: "Settings", zh: "设置" },
-"settings.description": { en: "Customize your Teamclaw Hub preferences", zh: "自定义您的 Teamclaw Hub 偏好设置" },
+"settings.description": { en: "Customize your TeamClawHub preferences", zh: "自定义您的 TeamClawHub 偏好设置" },
   "settings.language": { en: "Language", zh: "语言" },
   "settings.english": { en: "English", zh: "English" },
   "settings.chinese": { en: "中文", zh: "中文" },
@@ -325,7 +325,7 @@ const translations: Record<string, Record<Locale, string>> = {
   "detail.dag": { en: "DAG", zh: "DAG" },
 
   // ── Metadata ──
-"meta.title": { en: "Teamclaw Hub — Workflow Community", zh: "Teamclaw Hub — 工作流社区" },
+"meta.title": { en: "TeamClawHub — Workflow Community", zh: "TeamClawHub — 工作流社区" },
 "meta.description": { en: "Community Workflow Marketplace", zh: "社区工作流市场" },
 };
 

@@ -1,10 +1,10 @@
-# 🌊 FlowHub
+# 🌊 TeamClawHub
 
 **A community marketplace for discovering, sharing, and distributing multi-agent OASIS workflows — built for [TeamClaw](https://github.com/Teamclaw-hub/TeamClaw.git).**
 
-FlowHub is where TeamClaw teams publish their workflow templates so others can browse, star, download, and remix them. Think of it as a "workflow app store" for multi-agent orchestration.
+TeamClawHub is where TeamClaw teams publish their workflow templates so others can browse, star, download, and remix them. Think of it as a "workflow app store" for multi-agent orchestration.
 
-> **Live site**: [flowhub.vercel.app](https://flowhub.vercel.app)
+> **Live site**: [teamclawhub.vercel.app](https://teamclawhub.vercel.app)
 
 ---
 
@@ -36,16 +36,16 @@ FlowHub is where TeamClaw teams publish their workflow templates so others can b
 ### 🖥️ CLI-Friendly API
 ```bash
 # List all workflows (JSON)
-curl https://flowhub.vercel.app/api/cli/workflows
+curl https://teamclawhub.vercel.app/api/cli/workflows
 
 # Pretty-printed table for terminal
-curl -H 'Accept: text/plain' https://flowhub.vercel.app/api/cli/workflows
+curl -H 'Accept: text/plain' https://teamclawhub.vercel.app/api/cli/workflows
 
 # Search by keyword
-curl 'https://flowhub.vercel.app/api/cli/workflows?search=creative'
+curl 'https://teamclawhub.vercel.app/api/cli/workflows?search=creative'
 
 # Download a workflow as ZIP
-curl -L -o workflow.zip https://flowhub.vercel.app/api/workflows/<id>/download
+curl -L -o workflow.zip https://teamclawhub.vercel.app/api/workflows/<id>/download
 ```
 
 ---
@@ -78,8 +78,8 @@ curl -L -o workflow.zip https://flowhub.vercel.app/api/workflows/<id>/download
 
 ```bash
 # Clone the repository
-git clone https://github.com/MaktubCN/flowhub.git
-cd flowhub
+git clone https://github.com/Teamclaw-hub/TeamClawHub.git
+cd TeamClawHub
 
 # Install dependencies
 npm install
@@ -113,7 +113,7 @@ npm run start      # → http://localhost:51211
 ## 📐 Project Structure
 
 ```
-flowhub/
+TeamClawHub/
 ├── app/                          # Next.js App Router
 │   ├── layout.tsx                # Root layout (I18nProvider)
 │   ├── page.tsx                  # Home → <MainPage />
@@ -130,11 +130,11 @@ flowhub/
 │   ├── profile/[login]/          # User profile page
 │   └── workflow/[workflowId]/    # Workflow detail page
 ├── components/
-│   ├── flowhub/
+│   ├── teamclawhub/
 │   │   ├── main-page.tsx         # Home page (search, filter, publish)
 │   │   ├── profile-page.tsx      # Profile (CRUD, stars, settings)
 │   │   ├── workflow-detail-page.tsx  # Detail (diagram, agents, YAML)
-│   │   └── logo.tsx              # FlowHub logo
+│   │   └── logo.tsx              # TeamClawHub logo
 │   └── ui/                       # shadcn/ui primitives
 ├── lib/
 │   ├── workflow-store.ts         # Core data layer (JSON read/write)
@@ -193,7 +193,7 @@ flowhub/
 
 ## 🔐 Authentication
 
-FlowHub uses **GitHub OAuth 2.0** for authentication:
+TeamClawHub uses **GitHub OAuth 2.0** for authentication:
 
 1. User clicks "Sign in with GitHub" → redirected to GitHub authorization page
 2. GitHub calls back with an authorization code
@@ -208,7 +208,7 @@ FlowHub uses **GitHub OAuth 2.0** for authentication:
 
 ## 🗄️ Data Model
 
-FlowHub uses a **lightweight JSON file store** (no external database):
+TeamClawHub uses a **lightweight JSON file store** (no external database):
 
 - **`hub_meta.json`** — All community-published workflows
 - **`star_records.json`** — User star records
@@ -227,16 +227,16 @@ FlowHub uses a **lightweight JSON file store** (no external database):
 
 ## 🤝 Relation to TeamClaw
 
-FlowHub is a companion project to [TeamClaw](https://github.com/Teamclaw-hub/TeamClaw.git) — a multi-agent collaboration framework. The relationship:
+TeamClawHub is a companion project to [TeamClaw](https://github.com/Teamclaw-hub/TeamClaw.git) — a multi-agent collaboration framework. The relationship:
 
 - **TeamClaw** → The runtime engine. Creates teams of AI agents that collaborate through OASIS workflows.
-- **FlowHub** → The distribution hub. Lets users share and discover workflow templates that run on TeamClaw.
+- **TeamClawHub** → The distribution hub. Lets users share and discover workflow templates that run on TeamClaw.
 
 A typical workflow:
 1. Design a multi-agent workflow in TeamClaw
 2. Export it as a Team Snapshot ZIP (agents + workflow YAML + skills)
-3. Publish to FlowHub for the community
-4. Others browse FlowHub, download the ZIP, and import into their TeamClaw instance
+3. Publish to TeamClawHub for the community
+4. Others browse TeamClawHub, download the ZIP, and import into their TeamClaw instance
 
 ---
 

@@ -10,7 +10,7 @@ const IS_VERCEL = process.env.VERCEL === "1";
 const PROJECT_ROOT = process.cwd();
 export const WORKSPACE_ROOT = IS_VERCEL ? PROJECT_ROOT : path.resolve(/* turbopackIgnore: true */ PROJECT_ROOT, "..");
 const TEAMCLAW_ROOT = path.resolve(/* turbopackIgnore: true */ PROJECT_ROOT, "..", "Teamclaw");
-const VERCEL_DATA_ROOT = "/tmp/flowhub";
+const VERCEL_DATA_ROOT = "/tmp/teamclawhub";
 export const HUB_META_PATH = IS_VERCEL ? path.join(VERCEL_DATA_ROOT, "hub_meta.json") : path.join(PROJECT_ROOT, "hub_meta.json");
 export const STAR_RECORDS_PATH = IS_VERCEL ? path.join(VERCEL_DATA_ROOT, "star_records.json") : path.join(PROJECT_ROOT, "star_records.json");
 
@@ -38,7 +38,7 @@ export const GITHUB_REDIRECT_URI = process.env.GITHUB_REDIRECT_URI ?? "";
 export const SESSION_SECRET =
   process.env.SESSION_SECRET ??
   process.env.FLASK_SECRET_KEY ??
-  crypto.createHash("sha256").update("flowhub-default-secret-key").digest("hex");
+  crypto.createHash("sha256").update("teamclawhub-default-secret-key").digest("hex");
 
 export const TAG_EMOJI: Record<string, string> = {
   creative: "🎨",
@@ -67,7 +67,7 @@ export const PRESET_WORKFLOW_DEFINITIONS: Workflow[] = [
     title: "ML Code Testing Pipeline",
     description:
       "Automated machine learning code testing workflow with parallel agents analyzing why this pipeline is optimal for ML testing scenarios.",
-author: "Teamclaw Hub Team",
+author: "TeamClawHub Team",
     tags: ["ml", "code", "pipeline"],
     category: "Engineering",
     stars: 128,
@@ -100,7 +100,7 @@ edges:
     id: "brainstorm_trio",
     title: "Creative Brainstorm Trio",
     description: "Three experts brainstorm in parallel, then a synthesis advisor summarizes the best ideas.",
-author: "Teamclaw Hub Team",
+author: "TeamClawHub Team",
     tags: ["brainstorm", "creative"],
     category: "Ideation",
     stars: 96,
@@ -133,7 +133,7 @@ edges:
     id: "code_review_pipeline",
     title: "Code Review Pipeline",
     description: "Sequential code review with security, performance, and readability checks.",
-author: "Teamclaw Hub Team",
+author: "TeamClawHub Team",
     tags: ["code", "review", "pipeline"],
     category: "Engineering",
     stars: 203,
@@ -162,7 +162,7 @@ edges:
     id: "business_debate",
     title: "Business Strategy Debate",
     description: "Economist, lawyer, and entrepreneur debate business strategy from different angles.",
-author: "Teamclaw Hub Team",
+author: "TeamClawHub Team",
     tags: ["debate", "brainstorm"],
     category: "Business",
     stars: 75,
@@ -205,7 +205,7 @@ edges:
     id: "dag_research_pipeline",
     title: "Research Analysis DAG",
     description: "DAG-based research pipeline with parallel data collection and sequential analysis.",
-author: "Teamclaw Hub Team",
+author: "TeamClawHub Team",
     tags: ["pipeline", "data"],
     category: "Research",
     stars: 64,
@@ -242,7 +242,7 @@ edges:
     id: "multi_agent_team",
     title: "Multi-Agent Collaboration Team",
     description: "A comprehensive team snapshot with internal oasis agents, OpenClaw agents with skills, and external connected agents with cron jobs.",
-author: "Teamclaw Hub Team",
+author: "TeamClawHub Team",
     tags: ["team", "snapshot", "external", "openclaw"],
     category: "Engineering",
     stars: 156,

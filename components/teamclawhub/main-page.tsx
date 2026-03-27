@@ -2,8 +2,8 @@
 
 import { Copy, Github, LogOut, Search, Settings, Sparkles, Upload, UserRound } from "lucide-react";
 
-import { LanguageToggle } from "@/components/flowhub/language-toggle";
-import { ThemeToggle } from "@/components/flowhub/theme-toggle";
+import { LanguageToggle } from "@/components/teamclawhub/language-toggle";
+import { ThemeToggle } from "@/components/teamclawhub/theme-toggle";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
@@ -11,8 +11,8 @@ import type { Locale } from "@/lib/i18n";
 import { translateValue, useI18n } from "@/lib/i18n";
 import { pickWorkflowTag, pickWorkflowText } from "@/lib/workflow-localization";
 
-import { FlowhubLogo } from "@/components/flowhub/logo";
-import { StableI18nText } from "@/components/flowhub/stable-i18n-text";
+import { TeamClawHubLogo } from "@/components/teamclawhub/logo";
+import { StableI18nText } from "@/components/teamclawhub/stable-i18n-text";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -296,7 +296,7 @@ export function MainPage() {
   }
 
   function buildDownloadCommand(workflow: Workflow): string {
-    const origin = typeof window !== "undefined" ? window.location.origin : "https://flowhub-mu.vercel.app";
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://teamclawhub.vercel.app";
     const safeTitle = (workflow.title || "workflow")
       .toLowerCase()
       .replace(/[\s\u2014]+/g, "_")
@@ -443,7 +443,7 @@ export function MainPage() {
       <header className="sticky top-0 z-30 border-b border-border/70 bg-background/90 backdrop-blur">
         <div className="container flex h-16 items-center gap-4">
           <Link href="/" className="text-xl font-bold text-primary">
-            <FlowhubLogo />
+            <TeamClawHubLogo />
           </Link>
           <div className="ml-auto flex items-center gap-2">
             <ThemeToggle />

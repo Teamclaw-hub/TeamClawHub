@@ -2,9 +2,9 @@
 
 import { ArrowLeft, Copy, Download, Github, LogOut, Star, UserRound } from "lucide-react";
 
-import { LanguageToggle } from "@/components/flowhub/language-toggle";
-import { StableI18nText } from "@/components/flowhub/stable-i18n-text";
-import { ThemeToggle } from "@/components/flowhub/theme-toggle";
+import { LanguageToggle } from "@/components/teamclawhub/language-toggle";
+import { StableI18nText } from "@/components/teamclawhub/stable-i18n-text";
+import { ThemeToggle } from "@/components/teamclawhub/theme-toggle";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -17,7 +17,7 @@ import {
   pickWorkflowText
 } from "@/lib/workflow-localization";
 
-import { FlowhubLogo } from "@/components/flowhub/logo";
+import { TeamClawHubLogo } from "@/components/teamclawhub/logo";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -1378,7 +1378,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
 
     return { oasis: oasisAgents, openclaw: openclawAgents, external: externalAgentsList, custom: customAgentsList };
   }, [workflow, internalAgents, externalAgents]);
-  const curlDownloadUrl = `${siteOrigin || "https://flowhub-mu.vercel.app"}/api/workflows/${workflowId}/download`;
+  const curlDownloadUrl = `${siteOrigin || "https://teamclawhub.vercel.app"}/api/workflows/${workflowId}/download`;
   const curlSafeTitle = (workflow?.title || "workflow")
     .toLowerCase()
     .replace(/[\s\u2014]+/g, "_")
@@ -1440,7 +1440,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
       <header className="sticky top-0 z-30 border-b border-border/70 bg-background/90 backdrop-blur">
         <div className="container flex h-16 items-center gap-3">
           <Link href="/" className="text-xl font-bold text-primary">
-            <FlowhubLogo />
+            <TeamClawHubLogo />
           </Link>
           <div className="ml-auto flex items-center gap-2">
             <ThemeToggle />

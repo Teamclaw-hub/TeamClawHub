@@ -1,6 +1,6 @@
-# Legacy FlowHub (Flask)
+# Legacy TeamClawHub (Flask)
 
-This folder contains the original single-file Flask implementation extracted from `flowhub 2.zip`.
+This folder contains the original single-file Flask implementation extracted from `TeamClawHub 2.zip`.
 
 ## Deploy on Vercel for side-by-side comparison
 

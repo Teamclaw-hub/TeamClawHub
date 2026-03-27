@@ -1,12 +1,12 @@
 """
-Teamclaw Hub — Community Workflow Marketplace
+TeamClawHub — Community Workflow Marketplace
 ==========================================
 A GitHub-style community platform for browsing, sharing, and selecting
 OASIS workflow templates. Users can discover pre-built workflows, preview
 their structure, and import them into the visual orchestrator.
 
 Run:
-  python flowhub/flowhub.py
+  python teamclawhub.py
   Open http://127.0.0.1:51211
 """
 
@@ -151,7 +151,7 @@ PRESET_WORKFLOWS = [
         "id": "ml_code_test",
         "title": "ML Code Testing Pipeline",
         "description": "Automated machine learning code testing workflow with parallel agents analyzing why this pipeline is optimal for ML testing scenarios.",
-"author": "Teamclaw Hub Team",
+        "author": "TeamClawHub Team",
         "tags": ["ml", "code", "pipeline"],
         "category": "Engineering",
         "stars": 128,
@@ -183,7 +183,7 @@ edges:
         "id": "brainstorm_trio",
         "title": "Creative Brainstorm Trio",
         "description": "Three experts brainstorm in parallel, then a synthesis advisor summarizes the best ideas.",
-"author": "Teamclaw Hub Team",
+        "author": "TeamClawHub Team",
         "tags": ["brainstorm", "creative"],
         "category": "Ideation",
         "stars": 96,
@@ -215,7 +215,7 @@ edges:
         "id": "code_review_pipeline",
         "title": "Code Review Pipeline",
         "description": "Sequential code review with security, performance, and readability checks.",
-"author": "Teamclaw Hub Team",
+        "author": "TeamClawHub Team",
         "tags": ["code", "review", "pipeline"],
         "category": "Engineering",
         "stars": 203,
@@ -243,7 +243,7 @@ edges:
         "id": "business_debate",
         "title": "Business Strategy Debate",
         "description": "Economist, lawyer, and entrepreneur debate business strategy from different angles.",
-"author": "Teamclaw Hub Team",
+        "author": "TeamClawHub Team",
         "tags": ["debate", "brainstorm"],
         "category": "Business",
         "stars": 75,
@@ -285,7 +285,7 @@ edges:
         "id": "dag_research_pipeline",
         "title": "Research Analysis DAG",
         "description": "DAG-based research pipeline with parallel data collection and sequential analysis.",
-"author": "Teamclaw Hub Team",
+        "author": "TeamClawHub Team",
         "tags": ["pipeline", "data"],
         "category": "Research",
         "stars": 64,
@@ -316,222 +316,6 @@ edges:
   - on5
 """,
         "detail": "A DAG-based research pipeline that maximizes parallelism: two data collection agents work simultaneously, then a critical analyst reviews the combined data, a synthesis advisor draws conclusions, and finally a creative expert produces an engaging research report.",
-    },
-    {
-        "id": "auto_research_claw",
-        "title": "🧬 AutoResearchClaw — 23-Stage Research Pipeline",
-        "description": "Fully autonomous 23-stage research pipeline that turns a single research idea into a conference-ready paper (NeurIPS/ICML/ICLR). Features real literature search, self-healing experiments, 4-layer citation verification, and quality gates with human-in-the-loop approval.",
-"author": "Teamclaw Hub Team",
-        "tags": ["research", "pipeline", "ml", "code", "review"],
-        "category": "Research",
-        "stars": 512,
-        "forks": 147,
-        "icon": "🧬",
-        "yaml_content": """# AutoResearchClaw — 23-Stage Autonomous Research Pipeline
-# A → Scoping | B → Literature | C → Synthesis | D → Design | E → Execution | F → Analysis | G → Writing | H → Finalization
-version: 2
-repeat: false
-plan:
-  # ─── Phase A: Scoping (Stages 1-2) ───
-  - id: begin
-    manual:
-      author: begin
-      content: "🚀 AutoResearchClaw Pipeline Initiated — Starting autonomous research workflow"
-  - id: s1_topic_init
-    expert: "synthesis#temp#0.3"
-  - id: s2_decompose
-    expert: "critical#temp#0.4"
-
-  # ─── Phase B: Literature (Stages 3-6) ───
-  - id: s3_search_strategy
-    expert: "data#temp#0.3"
-  - id: s4_lit_collect
-    parallel:
-      - expert: "data#temp#0.2"
-      - expert: "economist#temp#0.2"
-  - id: s5_lit_screen
-    expert: "critical#temp#0.3"
-  - id: s5_gate
-    selector: true
-    expert: "synthesis#temp#0.2"
-  - id: s6_knowledge_extract
-    expert: "data#temp#0.4"
-
-  # ─── Phase C: Synthesis (Stages 7-8) ───
-  - id: s7_knowledge_synth
-    expert: "synthesis#temp#0.5"
-  - id: s8_hypothesis
-    parallel:
-      - expert: "creative#temp#0.8"
-      - expert: "critical#temp#0.5"
-      - expert: "entrepreneur#temp#0.6"
-
-  # ─── Phase D: Design (Stages 9-11) ───
-  - id: s9_experiment_design
-    expert: "data#temp#0.4"
-  - id: s9_gate
-    selector: true
-    expert: "critical#temp#0.2"
-  - id: s10_code_gen
-    expert: "creative#temp#0.5"
-  - id: s11_resource_plan
-    expert: "economist#temp#0.3"
-
-  # ─── Phase E: Execution (Stages 12-13) ───
-  - id: s12_experiment_run
-    expert: "data#temp#0.2"
-  - id: s13_refine
-    expert: "critical#temp#0.4"
-
-  # ─── Phase F: Analysis (Stages 14-15) ───
-  - id: s14_result_analysis
-    parallel:
-      - expert: "data#temp#0.3"
-      - expert: "economist#temp#0.4"
-  - id: s15_research_decision
-    selector: true
-    expert: "synthesis#temp#0.3"
-
-  # ─── Phase G: Writing (Stages 16-19) ───
-  - id: s16_outline
-    expert: "synthesis#temp#0.5"
-  - id: s17_draft
-    expert: "creative#temp#0.6"
-  - id: s18_peer_review
-    parallel:
-      - expert: "critical#temp#0.5"
-      - expert: "data#temp#0.4"
-  - id: s19_revision
-    expert: "creative#temp#0.4"
-
-  # ─── Phase H: Finalization (Stages 20-23) ───
-  - id: s20_quality_gate
-    selector: true
-    expert: "critical#temp#0.2"
-  - id: s21_knowledge_archive
-    expert: "synthesis#temp#0.3"
-  - id: s22_latex_export
-    expert: "creative#temp#0.3"
-  - id: s23_citation_verify
-    expert: "critical#temp#0.2"
-  - id: finish
-    manual:
-      author: bend
-      content: "🏁 AutoResearchClaw Pipeline Complete — Conference-ready paper generated"
-
-edges:
-  # Phase A: Scoping
-  - [begin, s1_topic_init]
-  - [s1_topic_init, s2_decompose]
-  # Phase B: Literature
-  - [s2_decompose, s3_search_strategy]
-  - [s3_search_strategy, s4_lit_collect]
-  - [s4_lit_collect, s5_lit_screen]
-  - [s5_lit_screen, s5_gate]
-  - [s5_gate, s6_knowledge_extract]
-  # Phase C: Synthesis
-  - [s6_knowledge_extract, s7_knowledge_synth]
-  - [s7_knowledge_synth, s8_hypothesis]
-  # Phase D: Design
-  - [s8_hypothesis, s9_experiment_design]
-  - [s9_experiment_design, s9_gate]
-  - [s9_gate, s10_code_gen]
-  - [s10_code_gen, s11_resource_plan]
-  # Phase E: Execution
-  - [s11_resource_plan, s12_experiment_run]
-  - [s12_experiment_run, s13_refine]
-  # Phase F: Analysis
-  - [s13_refine, s14_result_analysis]
-  - [s14_result_analysis, s15_research_decision]
-  # Phase G: Writing
-  - [s15_research_decision, s16_outline]
-  - [s16_outline, s17_draft]
-  - [s17_draft, s18_peer_review]
-  - [s18_peer_review, s19_revision]
-  # Phase H: Finalization
-  - [s19_revision, s20_quality_gate]
-  - [s20_quality_gate, s21_knowledge_archive]
-  - [s21_knowledge_archive, s22_latex_export]
-  - [s22_latex_export, s23_citation_verify]
-  - [s23_citation_verify, finish]
-
-selector_edges:
-  # Stage 5 Gate: Literature screening approval
-  - source: s5_gate
-    choices:
-      "1": s6_knowledge_extract
-      "2": s4_lit_collect
-  # Stage 9 Gate: Experiment design approval
-  - source: s9_gate
-    choices:
-      "1": s10_code_gen
-      "2": s9_experiment_design
-  # Stage 15: Research decision (PROCEED / REFINE / PIVOT)
-  - source: s15_research_decision
-    choices:
-      "1": s16_outline
-      "2": s12_experiment_run
-      "3": s8_hypothesis
-  # Stage 20: Final quality gate
-  - source: s20_quality_gate
-    choices:
-      "1": s21_knowledge_archive
-      "2": s19_revision
-""",
-        "detail": """AutoResearchClaw is a fully autonomous 23-stage research pipeline that turns a single research idea into a conference-ready paper with minimal human intervention.
-
-🔬 PIPELINE OVERVIEW (8 Phases, 23 Stages):
-
-━━━ Phase A: Scoping (Stages 1-2) ━━━
-  Stage 1 — Topic Initialization: Parses and formalizes the research idea
-  Stage 2 — Problem Decomposition: Breaks the topic into sub-problems and hypotheses
-
-━━━ Phase B: Literature (Stages 3-6) ━━━
-  Stage 3 — Search Strategy: Plans multi-source literature search (OpenAlex, Semantic Scholar, arXiv)
-  Stage 4 — Literature Collection: Parallel agents collect papers from different sources
-  Stage 5 — Literature Screening: Quality filter with approval gate (⛔ GATE)
-  Stage 6 — Knowledge Extraction: Extracts key findings, methods, and gaps
-
-━━━ Phase C: Synthesis (Stages 7-8) ━━━
-  Stage 7 — Knowledge Synthesis: Builds unified knowledge graph from extracted information
-  Stage 8 — Hypothesis Generation: Multi-agent debate (creative + critical + entrepreneur) generates novel hypotheses
-
-━━━ Phase D: Design (Stages 9-11) ━━━
-  Stage 9 — Experiment Design: Creates detailed experiment plan
-  Stage 9 Gate — Design Approval: Quality check on experiment design (⛔ GATE)
-  Stage 10 — Code Generation: Generates experiment code (hardware-aware: GPU/MPS/CPU)
-  Stage 11 — Resource Planning: Estimates compute, data, and time requirements
-
-━━━ Phase E: Execution (Stages 12-13) ━━━
-  Stage 12 — Experiment Execution: Runs experiments in self-healing sandbox
-  Stage 13 — Iterative Refinement: Analyzes failures and retries with fixes
-
-━━━ Phase F: Analysis (Stages 14-15) ━━━
-  Stage 14 — Result Analysis: Parallel statistical and economic analysis of results
-  Stage 15 — Research Decision: PROCEED → writing / REFINE → re-run experiments / PIVOT → new hypothesis (⛔ GATE)
-
-━━━ Phase G: Writing (Stages 16-19) ━━━
-  Stage 16 — Paper Outline: Structures the paper (NeurIPS/ICML/ICLR format)
-  Stage 17 — Draft Writing: Generates full paper draft (5,000-6,500 words)
-  Stage 18 — Peer Review: Parallel review by critical analyst and data expert
-  Stage 19 — Revision: Incorporates review feedback
-
-━━━ Phase H: Finalization (Stages 20-23) ━━━
-  Stage 20 — Quality Gate: Final approval checkpoint (⛔ GATE)
-  Stage 21 — Knowledge Archive: Saves lessons learned (MetaClaw integration)
-  Stage 22 — LaTeX Export: Generates conference-grade LaTeX + BibTeX
-  Stage 23 — Citation Verification: 4-layer citation verification pipeline
-
-🎯 KEY FEATURES:
-  📚 Real literature from OpenAlex, Semantic Scholar & arXiv (no hallucinated references)
-  🖥️ Hardware-aware execution (auto-detects GPU/MPS/CPU)
-  🧪 Self-healing sandbox experiments with iterative refinement
-  📝 Conference-grade LaTeX output (NeurIPS/ICML/ICLR templates)
-  🔍 4-layer citation verification
-  🧬 Self-learning lessons (with optional MetaClaw integration)
-  🚦 Quality gates with human-in-the-loop approval
-
-📦 OUTPUT: Full paper (5,000-6,500 words), LaTeX, BibTeX, experiment code, charts, peer reviews""",
     },
 ]
 
@@ -645,7 +429,7 @@ GITHUB_REDIRECT_URI = os.environ.get("GITHUB_REDIRECT_URI", "http://127.0.0.1:51
 
 # ── Flask App ──
 app = Flask(__name__)
-app.secret_key = os.environ.get("FLASK_SECRET_KEY", hashlib.sha256(b"flowhub-default-secret-key").hexdigest())
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", hashlib.sha256(b"teamclawhub-default-secret-key").hexdigest())
 
 
 # ── GitHub OAuth Routes ──
@@ -668,7 +452,7 @@ def auth_github_callback():
     """Handle GitHub OAuth callback, exchange code for access token and fetch user info."""
     code = request.args.get("code")
     if not code:
-return "<h2>Authorization failed: no code provided.</h2><a href='/'>Back to Teamclaw Hub</a>", 400
+        return "<h2>Authorization failed: no code provided.</h2><a href='/'>Back to TeamClawHub</a>", 400
 
     # Exchange code for access token
     token_resp = http_requests.post(
@@ -732,7 +516,7 @@ def _require_github_login():
 
 @app.route("/")
 def index():
-"""Serve the Teamclaw Hub main page."""
+    """Serve the TeamClawHub main page."""
     return render_template_string(MAIN_HTML)
 
 
@@ -1056,8 +840,6 @@ def _do_import_zip(file, *, author="Imported", team_name="", extra_agents=None,
         internal_agents = []   # from internal_agents.json (Teamclaw format)
         external_agents = []   # from external_agents.json (OpenClaw agents)
         experts_list = []      # from oasis_experts.json
-        cron_jobs = {}         # from cron_jobs.json
-        skills_info = {}       # parsed from skills/ directory structure
 
         with zipfile.ZipFile(zip_buffer, 'r') as zf:
             # First pass: read JSON metadata files and skills data
@@ -1088,39 +870,6 @@ def _do_import_zip(file, *, author="Imported", team_name="", extra_agents=None,
                     raw = json.loads(zf.read(info.filename))
                     if isinstance(raw, list):
                         experts_list = raw
-                elif fname == "cron_jobs.json":
-                    raw = json.loads(zf.read(info.filename))
-                    if isinstance(raw, dict):
-                        cron_jobs = raw
-                    elif isinstance(raw, list):
-                        cron_jobs = {"_global": raw}
-
-            # Parse skills/ directory: group by agent name
-            for info in zf.infolist():
-                if info.filename.startswith('skills/') and not info.is_dir():
-                    parts = info.filename.split('/')
-                    # Structure: skills/<agent_name>/<skill_name>/...
-                    if len(parts) >= 3:
-                        agent_name = parts[1]
-                        skill_name = parts[2]
-                        fname_part = parts[-1]
-                        if agent_name not in skills_info:
-                            skills_info[agent_name] = {}
-                        if skill_name not in skills_info[agent_name]:
-                            skills_info[agent_name][skill_name] = {"files": [], "meta": {}, "origin": {}}
-                        skills_info[agent_name][skill_name]["files"].append(info.filename)
-                        if fname_part == '_meta.json':
-                            try:
-                                meta_raw = json.loads(zf.read(info.filename))
-                                skills_info[agent_name][skill_name]["meta"] = meta_raw
-                            except Exception:
-                                pass
-                        if fname_part == 'origin.json':
-                            try:
-                                origin_raw = json.loads(zf.read(info.filename))
-                                skills_info[agent_name][skill_name]["origin"] = origin_raw
-                            except Exception:
-                                pass
 
             # Merge extra custom agents defined by the uploader
             if extra_agents:
@@ -1190,8 +939,6 @@ def _do_import_zip(file, *, author="Imported", team_name="", extra_agents=None,
                     "openclaw_agents": external_agents,    # alias for display
                     "experts": experts_list,
                     "skills_data": skills_data,            # preserved for re-download
-                    "cron_jobs": cron_jobs,                # from cron_jobs.json
-                    "skills_info": skills_info,            # parsed skills metadata per agent
                 }
                 meta["workflows"].append(new_wf)
                 imported.append(new_wf["title"])
@@ -1220,8 +967,6 @@ def _do_import_zip(file, *, author="Imported", team_name="", extra_agents=None,
                     "openclaw_agents": external_agents,
                     "experts": experts_list,
                     "skills_data": skills_data,            # preserved for re-download
-                    "cron_jobs": cron_jobs,                # from cron_jobs.json
-                    "skills_info": skills_info,            # parsed skills metadata per agent
                 }
                 meta["workflows"].append(new_wf)
                 imported.append(new_wf["title"])
@@ -1435,12 +1180,6 @@ def api_download_zip(workflow_id):
                 zf.writestr("oasis_experts.json", json.dumps(experts, indent=2, ensure_ascii=False))
                 json_files_written.add("oasis_experts.json")
 
-            # cron_jobs.json
-            cron_jobs_data = wf.get("cron_jobs", {})
-            if isinstance(cron_jobs_data, dict) and cron_jobs_data:
-                zf.writestr("cron_jobs.json", json.dumps(cron_jobs_data, indent=2, ensure_ascii=False))
-                json_files_written.add("cron_jobs.json")
-
             # --- 2. YAML files in oasis/yaml/ subdirectory (Teamclaw convention) ---
             if yaml_content:
                 safe_name = wf.get("title", "workflow").replace(" ", "_").replace("\u2014", "-").lower()
@@ -1486,7 +1225,7 @@ MAIN_HTML = r"""<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Teamclaw Hub — Workflow Community</title>
+<title>TeamClawHub — Workflow Community</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0d1117;--surface:#161b22;--surface2:#21262d;--border:#30363d;--text:#e6edf3;--text2:#8b949e;--accent:#58a6ff;--accent2:#238636;--accent-hover:#1f6feb;--green:#3fb950;--orange:#d29922;--pink:#f778ba;--radius:8px;--shadow:0 2px 8px rgba(0,0,0,.3)}
@@ -1581,18 +1320,14 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 </head>
 <body>
 <div class="header">
-<div class="logo">🌊 <span>Teamclaw Hub</span></div>
+  <div class="logo">🌊 <span>TeamClawHub</span></div>
   <nav>
     <a href="/" class="active">Explore</a>
+    <a href="javascript:void(0)" onclick="openPublishModal()">📤 Publish</a>
   </nav>
-  <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
-    <a href="https://github.com/Teamclaw-hub/TeamClaw.git" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--radius);background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:13px;font-weight:500;text-decoration:none;transition:.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text)'">⭐ GitHub</a>
-    <button id="magicCopyBtn" onclick="copyMagicPrompt(this)" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--radius);background:linear-gradient(135deg,#238636,#2ea043);border:1px solid rgba(63,185,80,.4);color:#fff;font-size:13px;font-weight:500;cursor:pointer;transition:.2s" onmouseover="this.style.filter='brightness(1.15)'" onmouseout="this.style.filter='none'" title="Copy a magic prompt to guide OpenClaw to download Teamclaw from GitHub">📋 Copy Magic Prompt</button>
-  </div>
   <div class="user-auth" id="userAuthArea">
     <!-- Filled by JS on load -->
   </div>
-  <a href="javascript:void(0)" onclick="openPublishModal()" style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:var(--radius);background:linear-gradient(135deg,var(--accent),var(--pink));color:#fff;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer;transition:.2s;margin-left:4px" onmouseover="this.style.filter='brightness(1.15)'" onmouseout="this.style.filter='none'">📤 Publish</a>
 </div>
 
 <div class="search-section">
@@ -1735,34 +1470,6 @@ function closeLoginModal() {
   document.getElementById('loginModal').classList.remove('show');
 }
 
-// Magic Prompt — copy to clipboard for user's OpenClaw
-function copyMagicPrompt(btn) {
-  const prompt = 'Clone https://github.com/Teamclaw-hub/TeamClaw.git, read SKILL.md, and install TeamClaw.';
-  if (!btn) btn = document.getElementById('magicCopyBtn');
-  const orig = btn.innerHTML;
-  function onSuccess() {
-    btn.innerHTML = '✅ Copied!';
-    btn.style.background = 'var(--accent2)';
-    setTimeout(function() { btn.innerHTML = orig; btn.style.background = 'linear-gradient(135deg,#238636,#2ea043)'; }, 2000);
-  }
-  // Try modern clipboard API first
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(prompt).then(onSuccess).catch(function() { fallbackCopy(prompt, onSuccess); });
-  } else {
-    fallbackCopy(prompt, onSuccess);
-  }
-}
-function fallbackCopy(text, cb) {
-  var ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
-  document.body.appendChild(ta);
-  ta.focus();
-  ta.select();
-  try { document.execCommand('copy'); if (cb) cb(); } catch(e) { alert('Copy failed, please copy manually.'); }
-  document.body.removeChild(ta);
-}
-
 async function loadWorkflows() {
   const search = document.getElementById('searchInput').value;
   const category = document.getElementById('categoryFilter').value;
@@ -1811,7 +1518,7 @@ function renderGrid(workflows) {
           <span class="meta-item">📊 ${w.steps} steps</span>
           <span class="meta-item">${w.repeat?'🔁 Repeat':'▶️ Once'}</span>
           <span class="meta-item">${typeIcons}</span>
-          <span class="meta-item" style="margin-left:auto"><button onclick="event.stopPropagation();copyCurlForCard(this,'${w.id}',${JSON.stringify(w.title||'workflow').replace(/'/g,'\\u0027')})" style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:11px;cursor:pointer;transition:.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'" title="Copy curl download command">📋 curl</button></span>
+          <span class="meta-item" style="margin-left:auto"><button onclick="event.stopPropagation();copyCurlForCard(this,'${w.id}',${JSON.stringify(w.title||'workflow').replace(/'/g,'\\\\u0027')})" style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:11px;cursor:pointer;transition:.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'" title="Copy curl download command">📋 curl</button></span>
         </div>
       </div>`;
   }).join('');
@@ -1823,9 +1530,10 @@ function copyCurlForCard(btn, wfId, title) {
   const cmd = 'curl -L -o "team_' + safeTitle + '_snapshot.zip" "' + window.location.origin + '/api/workflows/' + wfId + '/download"';
   const orig = btn.innerHTML;
   function onOk() { btn.innerHTML = '✅ Copied!'; setTimeout(function(){ btn.innerHTML = orig; }, 1500); }
+  function doFallback() { var ta=document.createElement('textarea'); ta.value=cmd; ta.style.cssText='position:fixed;left:-9999px'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); onOk(); }
   if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(cmd).then(onOk).catch(function(){ fallbackCopy(cmd, onOk); });
-  } else { fallbackCopy(cmd, onOk); }
+    navigator.clipboard.writeText(cmd).then(onOk).catch(doFallback);
+  } else { doFallback(); }
 }
 
 function renderStats(data) {
@@ -2039,7 +1747,7 @@ DETAIL_HTML = r"""<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FlowHub — Workflow Detail</title>
+<title>TeamClawHub — Workflow Detail</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0d1117;--surface:#161b22;--surface2:#21262d;--border:#30363d;--text:#e6edf3;--text2:#8b949e;--accent:#58a6ff;--accent2:#238636;--green:#3fb950;--orange:#d29922;--pink:#f778ba;--radius:8px}
@@ -2050,7 +1758,7 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 .header .logo{font-size:24px;font-weight:700;display:flex;align-items:center;gap:8px}
 .header .logo span{background:linear-gradient(135deg,var(--accent),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 
-.container{max-width:1200px;margin:32px auto;padding:0 24px}
+.container{max-width:1000px;margin:32px auto;padding:0 24px}
 .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--text2);font-size:14px;margin-bottom:20px;transition:.2s}
 .back-link:hover{color:var(--accent);text-decoration:none}
 
@@ -2082,23 +1790,23 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 .yaml-block pre{padding:16px;font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;font-size:13px;line-height:1.6;color:#e6edf3;white-space:pre;margin:0}
 
 /* Floating info panel inside canvas — compact */
-.fg-panel{position:absolute;top:10px;right:10px;z-index:120;width:320px;max-height:55%;background:rgba(22,27,34,.92);border:1px solid var(--border);border-radius:10px;backdrop-filter:blur(10px);display:flex;flex-direction:column;transition:width .2s ease,max-height .2s ease,opacity .2s;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.4);font-size:12px}
+.fg-panel{position:absolute;top:8px;right:8px;z-index:120;width:200px;max-height:45%;background:rgba(22,27,34,.88);border:1px solid var(--border);border-radius:8px;backdrop-filter:blur(8px);display:flex;flex-direction:column;transition:width .2s ease,max-height .2s ease,opacity .2s;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.3);font-size:10px}
 .fg-panel.collapsed{width:32px;max-height:32px;border-radius:8px;cursor:pointer;opacity:.75}
 .fg-panel.collapsed:hover{opacity:1}
-.fg-panel-toggle{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;font-size:12px;font-weight:600;color:var(--text);cursor:pointer;user-select:none;border-bottom:1px solid var(--border);flex-shrink:0}
+.fg-panel-toggle{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;font-size:10px;font-weight:600;color:var(--text);cursor:pointer;user-select:none;border-bottom:1px solid var(--border);flex-shrink:0}
 .fg-panel-toggle .toggle-icon{font-size:12px;transition:transform .2s}
 .fg-panel.collapsed .fg-panel-toggle{border-bottom:none;justify-content:center;padding:6px}
 .fg-panel.collapsed .fg-panel-toggle .toggle-label{display:none}
-.fg-panel-body{overflow-y:auto;overflow-x:hidden;padding:10px;display:flex;flex-direction:column;gap:10px;flex:1;min-height:0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent}
+.fg-panel-body{overflow-y:auto;overflow-x:hidden;padding:6px;display:flex;flex-direction:column;gap:6px;flex:1;min-height:0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent}
 .fg-panel-body::-webkit-scrollbar{width:4px}
 .fg-panel-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:2px}
 .fg-panel.collapsed .fg-panel-body{display:none}
-.fg-panel .sidebar-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px}
-.fg-panel .sidebar-card-header{font-weight:600;font-size:12px;margin-bottom:6px;display:flex;align-items:center;gap:5px}
-.fg-panel .sidebar-expert-chip{padding:3px 8px;border-radius:10px;font-size:10px;background:var(--surface);border:1px solid var(--border);display:inline-flex;align-items:center;gap:3px;margin:2px}
-.fg-panel .persona-item{margin-bottom:5px;padding:6px;background:var(--surface);border-radius:5px;border:1px solid var(--border)}
-.fg-panel .persona-name{font-weight:600;font-size:11px;margin-bottom:3px}
-.fg-panel .persona-desc{font-size:11px;color:var(--text2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.fg-panel .sidebar-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px}
+.fg-panel .sidebar-card-header{font-weight:600;font-size:10px;margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.fg-panel .sidebar-expert-chip{padding:2px 6px;border-radius:10px;font-size:9px;background:var(--surface);border:1px solid var(--border);display:inline-flex;align-items:center;gap:2px;margin:1px}
+.fg-panel .persona-item{margin-bottom:4px;padding:4px;background:var(--surface);border-radius:4px;border:1px solid var(--border)}
+.fg-panel .persona-name{font-weight:600;font-size:9px;margin-bottom:1px}
+.fg-panel .persona-desc{font-size:9px;color:var(--text2);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
 /* YAML toggle button */
 .yaml-toggle-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text);transition:.2s}
@@ -2115,7 +1823,7 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 .fg-nav button{background:none;border:1px solid var(--border);border-radius:4px;color:var(--text2);width:26px;height:26px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
 .fg-nav button:hover{background:var(--surface2);color:var(--text)}
 .fg-nav .fg-zoom-label{font-size:11px;color:var(--text2);min-width:38px;text-align:center;user-select:none}
-.flow-graph .fg-node{position:absolute;min-width:140px;padding:12px 16px;border-radius:12px;background:var(--surface);border:2px solid var(--accent);cursor:pointer;user-select:none;z-index:10;display:flex;align-items:center;gap:10px;font-size:13px;box-shadow:0 2px 12px rgba(0,0,0,.2);transition:border-color .15s, box-shadow .15s}
+.flow-graph .fg-node{position:absolute;min-width:120px;padding:10px 14px;border-radius:10px;background:var(--surface);border:2px solid var(--accent);cursor:pointer;user-select:none;z-index:10;display:flex;align-items:center;gap:8px;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,.15);transition:border-color .15s, box-shadow .15s}
 .flow-graph .fg-node:hover{border-color:#79c0ff;box-shadow:0 4px 16px rgba(88,166,255,.25)}
 .flow-graph .fg-node.parallel-node{border-color:var(--green);background:rgba(63,185,80,.06)}
 .flow-graph .fg-node.parallel-node:hover{border-color:#56d364;box-shadow:0 4px 16px rgba(63,185,80,.25)}
@@ -2136,67 +1844,6 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 .expert-list{display:flex;flex-wrap:wrap;gap:8px}
 .expert-chip{padding:6px 12px;border-radius:20px;font-size:13px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;gap:4px}
 
-/* Agent detail section below diagram */
-.agent-detail-section{padding:16px}
-.agent-type-group{margin-bottom:24px}
-.agent-type-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--border);cursor:pointer;user-select:none}
-.agent-type-header:hover{border-bottom-color:var(--accent)}
-.agent-type-header .type-arrow{font-size:12px;color:var(--text2);transition:transform .2s;width:16px}
-.agent-type-header.collapsed .type-arrow{transform:rotate(-90deg)}
-.agent-type-header .type-emoji{font-size:22px}
-.agent-type-header .type-title{font-size:16px;font-weight:700;color:var(--text)}
-.agent-type-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:.5px}
-.agent-type-badge.badge-oasis{background:rgba(63,185,80,.15);color:#3fb950;border:1px solid rgba(63,185,80,.3)}
-.agent-type-badge.badge-openclaw{background:rgba(136,98,255,.15);color:#8862ff;border:1px solid rgba(136,98,255,.3)}
-.agent-type-badge.badge-external{background:rgba(255,166,87,.15);color:#ffa657;border:1px solid rgba(255,166,87,.3)}
-.agent-type-badge.badge-custom{background:rgba(255,107,237,.15);color:#ff6bed;border:1px solid rgba(255,107,237,.3)}
-.agent-type-body{overflow:hidden;transition:max-height .3s ease}
-.agent-type-body.collapsed{max-height:0 !important}
-.agent-cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
-.agent-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;transition:border-color .2s,box-shadow .2s}
-.agent-card:hover{border-color:var(--accent);box-shadow:0 2px 12px rgba(88,166,255,.15)}
-.agent-card-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.agent-card-icon{font-size:28px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:var(--surface);border-radius:10px;border:1px solid var(--border);flex-shrink:0}
-.agent-card-name{font-size:15px;font-weight:700;color:var(--text)}
-.agent-card-tag{font-size:11px;color:var(--accent);font-family:monospace}
-.agent-card-type-label{margin-left:auto}
-.agent-card-body{display:flex;flex-direction:column;gap:6px}
-.agent-card-row{display:flex;align-items:flex-start;gap:6px;font-size:12px}
-.agent-card-row .row-label{color:var(--text2);font-weight:600;min-width:80px;flex-shrink:0}
-.agent-card-row .row-value{color:var(--text);line-height:1.5}
-.agent-persona-toggle{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--accent);padding:4px 0;user-select:none;transition:color .2s}
-.agent-persona-toggle:hover{color:var(--text)}
-.agent-persona-toggle .persona-arrow{display:inline-block;font-size:10px;transition:transform .2s}
-.agent-persona-toggle.open .persona-arrow{transform:rotate(90deg)}
-.agent-card-persona{font-size:12px;color:var(--text2);line-height:1.5;margin-top:4px;padding:8px;background:var(--surface);border-radius:6px;border:1px solid var(--border);max-height:120px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent;display:none}
-.agent-card-persona.show{display:block}
-.agent-card-persona::-webkit-scrollbar{width:3px}
-.agent-card-persona::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
-.agent-card-config{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
-.agent-config-badge{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:6px;font-size:11px;background:var(--surface);border:1px solid var(--border);color:var(--text2)}
-.agent-config-badge .cfg-icon{font-size:12px}
-.agent-config-badge .cfg-val{color:var(--text);font-weight:600}
-.agent-node-list{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}
-.agent-node-chip{padding:2px 7px;border-radius:4px;font-size:10px;font-family:monospace;background:rgba(88,166,255,.1);border:1px solid rgba(88,166,255,.2);color:var(--accent)}
-.agent-skills-section{margin-top:8px;padding:8px;background:var(--surface);border-radius:6px;border:1px solid var(--border)}
-.agent-skills-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:5px}
-.agent-skill-item{display:flex;align-items:center;gap:8px;padding:6px 8px;margin-bottom:4px;background:var(--surface2);border-radius:6px;border:1px solid var(--border);font-size:11px}
-.agent-skill-item:last-child{margin-bottom:0}
-.agent-skill-name{font-weight:600;color:var(--accent)}
-.agent-skill-meta{color:var(--text2);font-size:10px;display:flex;gap:8px;flex-wrap:wrap}
-.agent-skill-meta span{display:inline-flex;align-items:center;gap:2px}
-.agent-skill-registry{color:var(--text2);font-size:10px;opacity:.7}
-.agent-cron-section{margin-top:8px;padding:8px;background:var(--surface);border-radius:6px;border:1px solid var(--border)}
-.agent-cron-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:5px}
-.agent-cron-item{display:flex;flex-direction:column;gap:3px;padding:6px 8px;margin-bottom:4px;background:var(--surface2);border-radius:6px;border:1px solid var(--border);font-size:11px}
-.agent-cron-item:last-child{margin-bottom:0}
-.agent-cron-name{font-weight:600;color:#e5c07b}
-.agent-cron-detail{color:var(--text2);font-size:10px;display:flex;gap:10px;flex-wrap:wrap}
-.agent-cron-detail span{display:inline-flex;align-items:center;gap:2px}
-.agent-cron-msg{color:var(--text2);font-size:10px;font-style:italic;margin-top:2px;padding:3px 6px;background:rgba(229,192,123,.08);border-radius:4px;border-left:2px solid rgba(229,192,123,.3)}
-.agent-cron-badge-enabled{color:#98c379;font-size:9px;font-weight:600}
-.agent-cron-badge-disabled{color:#e06c75;font-size:9px;font-weight:600}
-
 .loading{text-align:center;padding:60px;color:var(--text2);font-size:16px}
 
 /* Agent hover tooltip */
@@ -2212,7 +1859,7 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 </head>
 <body>
 <div class="header">
-  <a href="/" style="text-decoration:none"><div class="logo">🌊 <span>FlowHub</span></div></a>
+  <a href="/" style="text-decoration:none"><div class="logo">🌊 <span>TeamClawHub</span></div></a>
 </div>
 
 <div class="container">
@@ -2248,7 +1895,7 @@ async function loadDetail() {
     return;
   }
   const w = await resp.json();
-  document.title = `FlowHub — ${w.title}`;
+  document.title = `TeamClawHub — ${w.title}`;
 
   const tagsHtml = (w.tags||[]).map(t => `<span class="badge tag">${t}</span>`).join('');
   const dagBadge = w.is_dag ? '<span class="badge dag">⚡ DAG Mode</span>' : '';
@@ -2279,8 +1926,17 @@ async function loadDetail() {
   // Build flow diagram
   const flowNodes = parseYamlToFlowNodes(w.yaml_content);
 
-  // Build agent detail section (to be placed below diagram)
-  const agentDetailHtml = buildAgentDetailSection(w, parseYamlToFlowNodes(w.yaml_content));
+  // Build floating panel content for experts info
+  let panelCards = '';
+  if (expertChips) {
+    panelCards += '<div class="sidebar-card"><div class="sidebar-card-header">👥 Experts Involved</div><div style="display:flex;flex-wrap:wrap;gap:3px">' +
+      (w.experts||[]).map(e => {
+        const em = TAG_EMOJI[e] || '⭐';
+        return '<span class="sidebar-expert-chip">' + em + ' ' + e + '</span>';
+      }).join('') + '</div></div>';
+  }
+  panelCards += buildSidebarPersonas(w);
+  panelCards += buildSidebarAgents(w);
 
   document.getElementById('detailContent').innerHTML = `
     <div class="detail-header">
@@ -2310,11 +1966,6 @@ async function loadDetail() {
       </div>
     </div>
 
-    <div class="section">
-      <div class="section-header">🤖 Agents</div>
-      <div class="agent-detail-section" id="agentDetailSection">${agentDetailHtml}</div>
-    </div>
-
     ${w.yaml_content ? `<div class="section">
       <div class="section-header" style="justify-content:space-between">
         <span>📄 YAML Configuration</span>
@@ -2326,8 +1977,8 @@ async function loadDetail() {
     </div>` : ''}
   `;
 
-  // Render the node-and-wire flow graph (no floating panel — info is below)
-  renderFlowGraph(flowNodes, document.getElementById('flowGraph'), '');
+  // Render the node-and-wire flow graph (with floating panel)
+  renderFlowGraph(flowNodes, document.getElementById('flowGraph'), panelCards);
 
   // Store for copy
   window._yamlContent = w.yaml_content || '';
@@ -2458,7 +2109,7 @@ function parseYamlToFlowNodes(yamlStr) {
 }
 
 function renderFlowGraph(parsed, container, panelHtml) {
-  // Render a Teamclaw-style node + wire graph using topological level layout
+  // Render a Teamclaw-style node + wire graph using HTML nodes + SVG edges
   const nodes = parsed.nodes || [];
   const dagEdges = parsed.dagEdges; // null = linear, array = DAG
   if (!container || !nodes.length) {
@@ -2466,133 +2117,91 @@ function renderFlowGraph(parsed, container, panelHtml) {
     return;
   }
 
-  // ── Teamclaw-style layout constants ──
-  const NW = 160, NH = 56, MARGIN_X = 60, MARGIN_Y = 40, GAP_X = 240, GAP_Y = 80;
+  // Layout constants
+  const NW = 150, NH = 54, HGAP = 70, VGAP = 26, PAD = 30;
 
-  // Step 1: Flatten all nodes (expand parallel_group children) and build edges
-  let flatNodes = []; // {id, displayName, type, lookupKeys, label, groupId?}
-  let edges = [];
-  let groupMeta = {}; // groupId -> {childIds}
-  let prevIds = [];
+  // Build flat node list with positions (left-to-right auto layout)
+  let layoutNodes = []; // {id, x, y, w, h, displayName, type, lookupKeys, label}
+  let edges = [];       // {sourceId, targetId}
+  let cx = PAD, cy = PAD;
+  let prevIds = []; // ids of previous step's nodes (for connecting edges in linear mode)
 
-  nodes.forEach((step) => {
+  nodes.forEach((step, idx) => {
     if (step.type === 'parallel_group') {
       const children = step.children || [];
+      const groupH = children.length * NH + (children.length - 1) * VGAP;
+      const startY = cy;
+
       let childIds = [];
-      children.forEach((child) => {
-        flatNodes.push({
-          id: child.id, displayName: child.displayName, type: 'parallel',
-          lookupKeys: child.lookupKeys, label: child.label, groupId: step.id
+      children.forEach((child, ci) => {
+        const ny = startY + ci * (NH + VGAP);
+        layoutNodes.push({
+          id: child.id, x: cx, y: ny, w: NW, h: NH,
+          displayName: child.displayName, type: 'parallel',
+          lookupKeys: child.lookupKeys, label: child.label
         });
         childIds.push(child.id);
       });
-      groupMeta[step.id] = { childIds, label: '⚡ Parallel' };
+
+      const groupPad = 12;
+      layoutNodes.push({
+        id: step.id, x: cx - groupPad, y: startY - groupPad,
+        w: NW + groupPad * 2, h: groupH + groupPad * 2,
+        type: '_group', groupLabel: '⚡ Parallel'
+      });
+
       if (!dagEdges) {
-        prevIds.forEach(pid => childIds.forEach(cid => edges.push({sourceId: pid, targetId: cid})));
+        // Linear mode: connect previous to all children
+        prevIds.forEach(pid => {
+          childIds.forEach(cid => edges.push({sourceId: pid, targetId: cid}));
+        });
       }
+
       prevIds = childIds;
+      cx += NW + HGAP;
+      cy = Math.max(cy, startY + groupH);
     } else {
-      flatNodes.push({
-        id: step.id, displayName: step.displayName, type: step.type,
+      layoutNodes.push({
+        id: step.id, x: cx, y: PAD, w: NW, h: NH,
+        displayName: step.displayName, type: step.type,
         lookupKeys: step.lookupKeys, label: step.label || step.dagId
       });
+
       if (!dagEdges) {
+        // Linear mode: chain nodes sequentially
         prevIds.forEach(pid => edges.push({sourceId: pid, targetId: step.id}));
       }
       prevIds = [step.id];
+      cx += NW + HGAP;
     }
   });
 
+  // DAG mode: use explicit edges
   if (dagEdges && dagEdges.length) {
-    dagEdges.forEach(([src, tgt]) => edges.push({sourceId: src, targetId: tgt}));
+    dagEdges.forEach(([src, tgt]) => {
+      edges.push({sourceId: src, targetId: tgt});
+    });
   }
 
-  // Step 2: Topological layer assignment (longest-path from sources)
-  const nodeById = {};
-  flatNodes.forEach(n => nodeById[n.id] = n);
-  const preds = {}, succs = {};
-  flatNodes.forEach(n => { preds[n.id] = []; succs[n.id] = []; });
-  edges.forEach(e => {
-    if (preds[e.targetId]) preds[e.targetId].push(e.sourceId);
-    if (succs[e.sourceId]) succs[e.sourceId].push(e.targetId);
+  // Vertically center single nodes relative to any parallel groups
+  let maxGroupH = 0;
+  layoutNodes.forEach(n => {
+    if (n.type === '_group') maxGroupH = Math.max(maxGroupH, n.h + n.y);
   });
-
-  const layerOf = {};
-  const visiting = new Set();
-  function getLayer(nid) {
-    if (layerOf[nid] !== undefined) return layerOf[nid];
-    if (visiting.has(nid)) { layerOf[nid] = 0; return 0; } // cycle guard
-    visiting.add(nid);
-    const deps = preds[nid] || [];
-    layerOf[nid] = deps.length === 0 ? 0 : Math.max(...deps.map(d => getLayer(d))) + 1;
-    visiting.delete(nid);
-    return layerOf[nid];
+  if (maxGroupH > 0) {
+    const centerY = (maxGroupH - PAD) / 2 + PAD;
+    layoutNodes.forEach(n => {
+      if (n.type !== '_group' && n.type !== 'parallel') {
+        n.y = centerY - n.h / 2;
+      }
+    });
   }
-  flatNodes.forEach(n => getLayer(n.id));
-
-  // Step 3: Group nodes by layer, then barycenter sort to minimize crossing
-  const layers = {};
-  flatNodes.forEach(n => {
-    const lv = layerOf[n.id] || 0;
-    if (!layers[lv]) layers[lv] = [];
-    layers[lv].push(n);
-  });
-
-  const nodeY = {};
-  const sortedLevels = Object.keys(layers).map(Number).sort((a,b) => a - b);
-  sortedLevels.forEach(lv => {
-    const items = layers[lv];
-    if (lv > 0) {
-      // Barycenter ordering: sort by average Y of predecessors
-      items.sort((a, b) => {
-        const aYs = (preds[a.id]||[]).map(d => nodeY[d]).filter(y => y !== undefined);
-        const bYs = (preds[b.id]||[]).map(d => nodeY[d]).filter(y => y !== undefined);
-        const aAvg = aYs.length ? aYs.reduce((s,v) => s+v, 0) / aYs.length : 0;
-        const bAvg = bYs.length ? bYs.reduce((s,v) => s+v, 0) / bYs.length : 0;
-        return aAvg - bAvg;
-      });
-      layers[lv] = items;
-    }
-    const count = items.length;
-    const totalH = (count - 1) * GAP_Y;
-    const yStart = MARGIN_Y + Math.max(0, (380 - totalH) / 2);
-    items.forEach((n, i) => { nodeY[n.id] = yStart + i * GAP_Y; });
-  });
-
-  // Step 4: Assign final x,y coordinates to layout nodes
-  let layoutNodes = [];
-  flatNodes.forEach(n => {
-    const lv = layerOf[n.id] || 0;
-    const x = MARGIN_X + lv * GAP_X;
-    const y = nodeY[n.id] || MARGIN_Y;
-    layoutNodes.push({
-      id: n.id, x, y, w: NW, h: NH,
-      displayName: n.displayName, type: n.type,
-      lookupKeys: n.lookupKeys, label: n.label, groupId: n.groupId
-    });
-  });
-
-  // Step 5: Draw group rectangles around parallel children
-  Object.entries(groupMeta).forEach(([gid, meta]) => {
-    const childNodes = layoutNodes.filter(n => meta.childIds.includes(n.id));
-    if (!childNodes.length) return;
-    const groupPad = 14;
-    const minX = Math.min(...childNodes.map(c => c.x));
-    const minY = Math.min(...childNodes.map(c => c.y));
-    const maxX = Math.max(...childNodes.map(c => c.x + c.w));
-    const maxY = Math.max(...childNodes.map(c => c.y + c.h));
-    layoutNodes.push({
-      id: gid, x: minX - groupPad, y: minY - groupPad,
-      w: maxX - minX + groupPad * 2, h: maxY - minY + groupPad * 2,
-      type: '_group', groupLabel: meta.label
-    });
-  });
 
   // Calculate total dimensions
-  let totalW = MARGIN_X, totalH = MARGIN_Y;
+  let totalW = PAD, totalH = PAD;
   layoutNodes.forEach(n => {
-    totalW = Math.max(totalW, n.x + n.w + MARGIN_X);
-    totalH = Math.max(totalH, n.y + n.h + MARGIN_Y);
+    totalW = Math.max(totalW, n.x + n.w + PAD);
+    totalH = Math.max(totalH, n.y + n.h + PAD);
   });
 
   // Build HTML — wrap everything in flow-graph-inner for pan/zoom transform
@@ -2859,217 +2468,57 @@ function toggleYaml() {
   }
 }
 
-function buildAgentDetailSection(w, parsed) {
-  // Build agent info section grouped by agent SOURCE TYPE:
-  // Oasis, OpenClaw, External, Custom - with collapsible persona
-  const expertsList = w.experts_detail || [];
-  const internalAgents = w.internal_agents || w.oasis_agents || [];
+function buildSidebarPersonas(w) {
+  // Expert personas from oasis_experts.json
+  const ex = w.experts_detail || w.oasis_experts || [];
+  if (!ex.length) {
+    // Try to extract from renderAgentsSection data
+    const exList = w.experts || [];
+    if (typeof exList[0] === 'object') {
+      // experts contains detailed objects
+      let items = exList.map(e => {
+        const emoji = TAG_EMOJI[e.tag] || '⭐';
+        return `<div class="persona-item"><div class="persona-name">${emoji} ${escHtml(e.name||e.name_en||e.tag)}</div><div class="persona-desc">${escHtml((e.persona||'').slice(0,100))}</div>${e.temperature !== undefined ? `<div style="font-size:10px;color:var(--text2);margin-top:2px">Temp: ${e.temperature}</div>` : ''}</div>`;
+      }).join('');
+      return `<div class="sidebar-card"><div class="sidebar-card-header">🎭 Expert Personas</div>${items}</div>`;
+    }
+    return '';
+  }
+  let items = ex.map(e => {
+    const emoji = TAG_EMOJI[e.tag] || '⭐';
+    return `<div class="persona-item"><div class="persona-name">${emoji} ${escHtml(e.name||e.name_en||e.tag)}</div><div class="persona-desc">${escHtml((e.persona||'').slice(0,100))}</div>${e.temperature !== undefined ? `<div style="font-size:10px;color:var(--text2);margin-top:2px">Temp: ${e.temperature}</div>` : ''}</div>`;
+  }).join('');
+  return `<div class="sidebar-card"><div class="sidebar-card-header">🎭 Expert Personas</div>${items}</div>`;
+}
+
+function buildSidebarAgents(w) {
+  let html = '';
+  // OpenClaw / External agents
   let ocList = w.external_agents || w.openclaw_agents || [];
   if (!Array.isArray(ocList) && typeof ocList === 'object') {
     ocList = Object.entries(ocList).map(([k,v]) => ({name:k, ...v}));
   }
-
-  // Scan YAML for stage→expert mapping
-  const yamlStageMap = {};
-  try {
-    const yamlLines = (w.yaml_content || '').split('\n');
-    let currentId = '';
-    for (const line of yamlLines) {
-      const t = line.trim();
-      if (t.startsWith('- id:')) currentId = t.replace('- id:', '').trim();
-      if (t.startsWith('expert:') || t.startsWith('- expert:')) {
-        const raw = t.replace('- expert:', '').replace('expert:', '').trim().replace(/"/g, '');
-        const tag = raw.split('#')[0];
-        if (tag && currentId) {
-          if (!yamlStageMap[tag]) yamlStageMap[tag] = [];
-          if (!yamlStageMap[tag].includes(currentId)) yamlStageMap[tag].push(currentId);
-        }
-      }
-    }
-  } catch(e) {}
-
-  // Parse nodes for supplementary stage mapping
-  const tagToNodes = {};
-  (parsed.nodes || []).forEach(n => {
-    if (n.type === 'parallel_group') {
-      (n.children || []).forEach(c => {
-        const tag = (c.lookupKeys && c.lookupKeys[0]) || c.displayName;
-        if (tag) { if (!tagToNodes[tag]) tagToNodes[tag] = []; if (n.dagId) tagToNodes[tag].push(n.dagId); }
-      });
-    } else if (n.lookupKeys && n.lookupKeys.length) {
-      const tag = n.lookupKeys[0];
-      if (!tagToNodes[tag]) tagToNodes[tag] = [];
-      if (n.dagId || n.label) tagToNodes[tag].push(n.dagId || n.label || n.displayName);
-    }
-  });
-
-  const TAG_CAT = {'creative':'🎨','critical':'🔍','data':'📊','synthesis':'🎯','economist':'📈','entrepreneur':'🚀','lawyer':'⚖️','cost_controller':'💰','revenue_planner':'📊','common_person':'🧑'};
-
-  // Parse skills_info and cron_jobs from workflow data
-  const skillsInfo = w.skills_info || {};
-  const cronJobs = w.cron_jobs || {};
-
-  // Helper: get skills for a given agent name
-  function getAgentSkills(agentName) {
-    // Direct match
-    if (skillsInfo[agentName]) return skillsInfo[agentName];
-    // Try matching by lowercase
-    const lowerName = (agentName||'').toLowerCase();
-    for (const key of Object.keys(skillsInfo)) {
-      if (key.toLowerCase() === lowerName) return skillsInfo[key];
-    }
-    return null;
+  const openclawAgents = ocList.filter(a => a.tag === 'openclaw' || a.config || a.workspace_files);
+  if (openclawAgents.length) {
+    let items = openclawAgents.map(entry => {
+      const name = entry.name || '?';
+      const ws = entry.workspace_files || {};
+      const identity = (ws['IDENTITY.md']||'').split('\\n').filter(l=>l.trim()).slice(0,2).join(' ');
+      return `<div class="persona-item"><div class="persona-name">🤖 ${escHtml(name)}</div><div class="persona-desc">${escHtml(identity.slice(0,80))}</div></div>`;
+    }).join('');
+    html += `<div class="sidebar-card"><div class="sidebar-card-header">🤖 OpenClaw (${openclawAgents.length})</div>${items}</div>`;
   }
-
-  // Helper: get cron jobs for a given agent name
-  function getAgentCronJobs(agentName) {
-    if (cronJobs[agentName]) return cronJobs[agentName];
-    const lowerName = (agentName||'').toLowerCase();
-    for (const key of Object.keys(cronJobs)) {
-      if (key.toLowerCase() === lowerName) return cronJobs[key];
-    }
-    return [];
+  // Internal agents
+  const ia = w.internal_agents || w.oasis_agents || [];
+  if (Array.isArray(ia) && ia.length) {
+    let chips = ia.map(a => {
+      const emoji = TAG_EMOJI[a.tag] || '⭐';
+      const isOC = (a.session||'').startsWith('oc_');
+      const label = isOC ? '🤖' : emoji;
+      return '<span class="sidebar-expert-chip">' + label + ' ' + escHtml(a.name||a.tag||'?') + '</span>';
+    }).join('');
+    html += `<div class="sidebar-card"><div class="sidebar-card-header">🏛️ Internal Agents (${ia.length})</div><div style="display:flex;flex-wrap:wrap;gap:4px">${chips}</div></div>`;
   }
-
-  // ── Classify all agents into 4 groups ──
-  const oasisAgents = [];
-  const openclawAgents = [];
-  const externalAgents = [];
-  const customAgents = [];
-
-  // 1) Experts from experts_detail → Oasis Agents
-  const oasisTags = new Set();
-  expertsList.forEach(e => {
-    const tag = e.tag || 'unknown';
-    oasisTags.add(tag);
-    oasisAgents.push({ name: e.name||e.name_en||tag, tag, emoji: TAG_CAT[tag]||TAG_EMOJI[tag]||'⭐', persona: e.persona||'', temperature: e.temperature, stages: yamlStageMap[tag]||tagToNodes[tag]||[], sourceType:'oasis', agentSkills: getAgentSkills(e.name||e.name_en||tag), agentCronJobs: getAgentCronJobs(e.name||e.name_en||tag) });
-  });
-
-  // 2) From ocList → split into openclaw vs external
-  ocList.forEach(entry => {
-    const isOC = entry.tag==='openclaw' || entry.workspace_files || (entry.config && entry.config.workspace_files);
-    const aName = entry.name || '?';
-    const ws = entry.workspace_files || {};
-    const identity = (ws['IDENTITY.md']||'').split('\\n').filter(l=>l.trim()).slice(0,5).join(' ');
-    const skills = (entry.config?.skills||[]).join(', ') || (entry.config?.skills_all ? 'all' : '');
-    const agent = { name: aName, tag: entry.tag||(isOC?'openclaw':'external'), emoji: isOC?'🐾':'🔗', persona: identity, skills, stages: yamlStageMap[aName]||yamlStageMap[entry.tag]||[], config: entry.config||{}, sourceType: isOC?'openclaw':'external', agentSkills: getAgentSkills(aName), agentCronJobs: getAgentCronJobs(aName) };
-    if (isOC) openclawAgents.push(agent); else externalAgents.push(agent);
-  });
-
-  // 3) Internal agents not already in oasis → Custom
-  internalAgents.forEach(a => {
-    if (oasisTags.has(a.tag)) return;
-    if ((a.session||'').startsWith('oc_')) return;
-    customAgents.push({ name: a.name||a.tag||'?', tag: a.tag||'custom', emoji: TAG_EMOJI[a.tag]||'✨', persona: a.persona||'', temperature: a.temperature, stages: yamlStageMap[a.tag]||yamlStageMap[a.name]||[], sourceType:'custom', agentSkills: getAgentSkills(a.name||a.tag), agentCronJobs: getAgentCronJobs(a.name||a.tag) });
-  });
-
-  let _uid = 0;
-
-  // Helper: build a single agent card with collapsible persona
-  function agentCard(a) {
-    const uid = 'ap' + (++_uid);
-    const badgeCls = 'badge-' + a.sourceType;
-    const badgeLbl = {oasis:'OASIS',openclaw:'OPENCLAW',external:'EXTERNAL',custom:'CUSTOM'}[a.sourceType]||'AGENT';
-    let h = '<div class="agent-card">';
-    h += '<div class="agent-card-top">';
-    h += '<div class="agent-card-icon">' + a.emoji + '</div>';
-    h += '<div><div class="agent-card-name">' + escHtml(a.name) + '</div><div class="agent-card-tag">' + escHtml(a.tag) + '</div></div>';
-    h += '<span class="agent-card-type-label agent-type-badge ' + badgeCls + '">' + badgeLbl + '</span>';
-    h += '</div>';
-    h += '<div class="agent-card-body">';
-    h += '<div class="agent-card-config">';
-    if (a.temperature !== undefined) h += '<span class="agent-config-badge"><span class="cfg-icon">🌡️</span> Temp: <span class="cfg-val">' + a.temperature + '</span></span>';
-    if (a.skills) h += '<span class="agent-config-badge"><span class="cfg-icon">🛠️</span> Skills: <span class="cfg-val">' + escHtml((a.skills+'').slice(0,60)) + '</span></span>';
-    h += '</div>';
-    if (a.persona) {
-      h += '<div class="agent-persona-toggle" onclick="var p=document.getElementById(\'' + uid + '\');p.classList.toggle(\'show\');this.classList.toggle(\'open\')">';
-      h += '<span class="persona-arrow">▶</span> <span>🎭 Show Persona</span></div>';
-      h += '<div class="agent-card-persona" id="' + uid + '">' + escHtml(a.persona) + '</div>';
-    }
-    if (a.stages && a.stages.length) {
-      h += '<div class="agent-card-row"><span class="row-label">📍 Stages</span></div>';
-      h += '<div class="agent-node-list">';
-      a.stages.forEach(function(sid) { h += '<span class="agent-node-chip">' + escHtml(sid) + '</span>'; });
-      h += '</div>';
-    }
-    // Skills section
-    if (a.agentSkills && typeof a.agentSkills === 'object') {
-      const skillEntries = Object.entries(a.agentSkills);
-      if (skillEntries.length > 0) {
-        h += '<div class="agent-skills-section">';
-        h += '<div class="agent-skills-title">🛠️ Skills (' + skillEntries.length + ')</div>';
-        skillEntries.forEach(function([skillName, skillData]) {
-          h += '<div class="agent-skill-item">';
-          h += '<span class="agent-skill-name">' + escHtml(skillName) + '</span>';
-          const meta = skillData.meta || {};
-          const origin = skillData.origin || {};
-          h += '<div class="agent-skill-meta">';
-          if (meta.version) h += '<span>📦 v' + escHtml(meta.version) + '</span>';
-          if (meta.slug) h += '<span>🏷️ ' + escHtml(meta.slug) + '</span>';
-          if (origin.registry) h += '<span class="agent-skill-registry">🌐 ' + escHtml(origin.registry) + '</span>';
-          if (origin.installedVersion) h += '<span>📥 v' + escHtml(origin.installedVersion) + '</span>';
-          h += '</div></div>';
-        });
-        h += '</div>';
-      }
-    }
-    // Cron Jobs section
-    if (a.agentCronJobs && Array.isArray(a.agentCronJobs) && a.agentCronJobs.length > 0) {
-      h += '<div class="agent-cron-section">';
-      h += '<div class="agent-cron-title">⏰ Cron Jobs (' + a.agentCronJobs.length + ')</div>';
-      a.agentCronJobs.forEach(function(job) {
-        h += '<div class="agent-cron-item">';
-        h += '<div style="display:flex;align-items:center;gap:6px">';
-        h += '<span class="agent-cron-name">' + escHtml(job.name || 'Unnamed Job') + '</span>';
-        h += '<span class="' + (job.enabled ? 'agent-cron-badge-enabled' : 'agent-cron-badge-disabled') + '">' + (job.enabled ? '● ENABLED' : '○ DISABLED') + '</span>';
-        h += '</div>';
-        h += '<div class="agent-cron-detail">';
-        if (job.scheduleKind) h += '<span>📋 ' + escHtml(job.scheduleKind) + '</span>';
-        if (job.cron) h += '<span>🕐 ' + escHtml(job.cron) + '</span>';
-        if (job.at) h += '<span>📅 ' + escHtml(new Date(job.at).toLocaleString()) + '</span>';
-        if (job.every) h += '<span>🔄 every ' + escHtml(job.every) + '</span>';
-        if (job.mode) h += '<span>📢 ' + escHtml(job.mode) + '</span>';
-        if (job.session) h += '<span>🔗 ' + escHtml(job.session) + '</span>';
-        h += '</div>';
-        if (job.message) {
-          h += '<div class="agent-cron-msg">💬 ' + escHtml((job.message+'').slice(0,120)) + '</div>';
-        }
-        h += '</div>';
-      });
-      h += '</div>';
-    }
-    h += '</div></div>';
-    return h;
-  }
-
-  // Helper: build a collapsible type group
-  function typeGroup(emoji, title, badgeCls, agents) {
-    if (!agents.length) return '';
-    const gid = 'atg' + (++_uid);
-    let h = '<div class="agent-type-group">';
-    h += '<div class="agent-type-header" onclick="var b=document.getElementById(\'' + gid + '\');b.classList.toggle(\'collapsed\');this.classList.toggle(\'collapsed\')">';
-    h += '<span class="type-arrow">▼</span>';
-    h += '<span class="type-emoji">' + emoji + '</span>';
-    h += '<span class="type-title">' + escHtml(title) + '</span>';
-    h += '<span class="agent-type-badge ' + badgeCls + '">' + agents.length + '</span>';
-    h += '</div>';
-    h += '<div class="agent-type-body" id="' + gid + '">';
-    h += '<div class="agent-cards-grid">';
-    agents.forEach(function(a) { h += agentCard(a); });
-    h += '</div></div></div>';
-    return h;
-  }
-
-  let html = '';
-  html += typeGroup('🏛️', 'Oasis Agents', 'badge-oasis', oasisAgents);
-  html += typeGroup('🐾', 'OpenClaw Agents', 'badge-openclaw', openclawAgents);
-  html += typeGroup('🔗', 'External Agents', 'badge-external', externalAgents);
-  html += typeGroup('✨', 'Custom Agents', 'badge-custom', customAgents);
-
-  if (!html) {
-    html = '<div style="color:var(--text2);text-align:center;padding:20px">No agents found for this workflow.</div>';
-  }
-
   return html;
 }
 
@@ -3149,7 +2598,7 @@ loadDetail();
 # ──────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     print("=" * 60)
-    print("  🌊 FlowHub — Workflow Community Platform")
+    print("  🌊 TeamClawHub — Workflow Community Platform")
     print(f"  Open http://127.0.0.1:{FLOWHUB_PORT} in your browser")
     print("=" * 60)
     app.run(host="0.0.0.0", port=FLOWHUB_PORT, debug=True)

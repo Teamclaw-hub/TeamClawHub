@@ -2,9 +2,9 @@
 
 import { ArrowLeft, Edit, ExternalLink, Github, LogOut, Plus, Settings, Star, Trash2, UserRound, X } from "lucide-react";
 
-import { LanguageToggle } from "@/components/flowhub/language-toggle";
-import { StableI18nText } from "@/components/flowhub/stable-i18n-text";
-import { ThemeToggle } from "@/components/flowhub/theme-toggle";
+import { LanguageToggle } from "@/components/teamclawhub/language-toggle";
+import { StableI18nText } from "@/components/teamclawhub/stable-i18n-text";
+import { ThemeToggle } from "@/components/teamclawhub/theme-toggle";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
@@ -12,7 +12,7 @@ import type { Locale } from "@/lib/i18n";
 import { translateValue, useI18n } from "@/lib/i18n";
 import { pickWorkflowTag, pickWorkflowText } from "@/lib/workflow-localization";
 
-import { FlowhubLogo } from "@/components/flowhub/logo";
+import { TeamClawHubLogo } from "@/components/teamclawhub/logo";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -233,7 +233,7 @@ export function ProfilePage({ login }: { login: string }) {
   function handleSaveSettings() {
     if (typeof window !== "undefined") {
       localStorage.setItem(
-        `flowhub_profile_${login}`,
+        `teamclawhub_profile_${login}`,
         JSON.stringify({ displayName, bio })
       );
     }
@@ -244,7 +244,7 @@ export function ProfilePage({ login }: { login: string }) {
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
-        const saved = localStorage.getItem(`flowhub_profile_${login}`);
+        const saved = localStorage.getItem(`teamclawhub_profile_${login}`);
         if (saved) {
           const parsed = JSON.parse(saved) as { displayName?: string; bio?: string };
           if (parsed.displayName) setDisplayName(parsed.displayName);
@@ -265,7 +265,7 @@ export function ProfilePage({ login }: { login: string }) {
       <header className="sticky top-0 z-30 border-b border-border/70 bg-background/90 backdrop-blur">
         <div className="container flex h-16 items-center gap-3">
           <Link href="/" className="text-xl font-bold text-primary">
-            <FlowhubLogo />
+            <TeamClawHubLogo />
           </Link>
           <div className="ml-auto flex items-center gap-2">
             <ThemeToggle />

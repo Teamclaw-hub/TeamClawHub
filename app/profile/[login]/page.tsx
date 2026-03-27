@@ -1,4 +1,4 @@
-import { ProfilePage } from "@/components/flowhub/profile-page";
+import { ProfilePage } from "@/components/teamclawhub/profile-page";
 
 export default async function Page({ params }: { params: Promise<{ login: string }> }) {
   const { login } = await params;
