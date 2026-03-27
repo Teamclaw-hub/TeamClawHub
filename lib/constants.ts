@@ -5,7 +5,7 @@ import path from "node:path";
 import { PRESET_WORKFLOW_LOCALIZATIONS } from "@/lib/preset-localizations";
 import type { Expert, Workflow } from "@/lib/types";
 
-export const FLOWHUB_PORT = 51211;
+export const TEAMCLAWHUB_PORT = 51211;
 const IS_VERCEL = process.env.VERCEL === "1";
 const PROJECT_ROOT = process.cwd();
 export const WORKSPACE_ROOT = IS_VERCEL ? PROJECT_ROOT : path.resolve(/* turbopackIgnore: true */ PROJECT_ROOT, "..");

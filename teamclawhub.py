@@ -41,7 +41,7 @@ UPLOAD_DIR = os.path.join(_THIS_DIR, "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # Default port
-FLOWHUB_PORT = 51211
+TEAMCLAWHUB_PORT = 51211
 
 # Import _yaml_to_layout_data from visual system for canvas rendering
 try:
@@ -3150,6 +3150,6 @@ loadDetail();
 if __name__ == "__main__":
     print("=" * 60)
     print("  🌊 TeamClawHub — Workflow Community Platform")
-    print(f"  Open http://127.0.0.1:{FLOWHUB_PORT} in your browser")
+    print(f"  Open http://127.0.0.1:{TEAMCLAWHUB_PORT} in your browser")
     print("=" * 60)
-    app.run(host="0.0.0.0", port=FLOWHUB_PORT, debug=True)
+    app.run(host="0.0.0.0", port=TEAMCLAWHUB_PORT, debug=True)

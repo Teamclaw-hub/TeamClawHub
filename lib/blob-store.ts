@@ -12,7 +12,8 @@
 import { get, put } from "@vercel/blob";
 
 const IS_VERCEL = process.env.VERCEL === "1";
-const BLOB_ACCESS: "public" | "private" = process.env.FLOWHUB_BLOB_ACCESS === "public" ? "public" : "private";
+const BLOB_ACCESS_ENV = process.env.TEAMCLAWHUB_BLOB_ACCESS ?? process.env.FLOWHUB_BLOB_ACCESS;
+const BLOB_ACCESS: "public" | "private" = BLOB_ACCESS_ENV === "public" ? "public" : "private";
 
 // In-memory cache to avoid redundant Blob fetches within the same invocation
 const cache = new Map<string, { data: unknown; ts: number }>();
