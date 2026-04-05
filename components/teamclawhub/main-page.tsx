@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import type { Locale } from "@/lib/i18n";
 import { translateValue, useI18n } from "@/lib/i18n";
+import { buildSnapshotFileName } from "@/lib/snapshot-name";
 import { pickWorkflowTag, pickWorkflowText } from "@/lib/workflow-localization";
 
 import { SiteHeader } from "@/components/teamclawhub/site-header";
@@ -300,12 +301,7 @@ export function MainPage() {
 
   function buildDownloadCommand(workflow: Workflow): string {
     const origin = typeof window !== "undefined" ? window.location.origin : "https://teamclawhub.com";
-    const safeTitle = (workflow.title || "workflow")
-      .toLowerCase()
-      .replace(/[\s\u2014]+/g, "_")
-      .replace(/[^a-z0-9_-]/g, "")
-      .slice(0, 40) || "workflow";
-    return `curl -L -o "team_${safeTitle}_snapshot.zip" "${origin}/api/workflows/${workflow.id}/download"`;
+    return `curl -L -o "${buildSnapshotFileName(workflow.title || "workflow")}" "${origin}/api/workflows/${workflow.id}/download"`;
   }
 
   async function copyDownloadCommand(workflow: Workflow) {

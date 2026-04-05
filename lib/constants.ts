@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { PRESET_WORKFLOW_LOCALIZATIONS } from "@/lib/preset-localizations";
-import type { Expert, Workflow } from "@/lib/types";
+import type { Agent, Expert, Workflow } from "@/lib/types";
 
 export const TEAMCLAWHUB_PORT = 51211;
 const IS_VERCEL = process.env.VERCEL === "1";
@@ -61,7 +61,90 @@ export const TAG_EMOJI: Record<string, string> = {
   debate: "🎙️"
 };
 
-export const PRESET_WORKFLOW_DEFINITIONS: Workflow[] = [
+function readJsonFile<T>(filePath: string, fallback: T): T {
+  try {
+    if (!fs.existsSync(filePath)) {
+      return fallback;
+    }
+    return JSON.parse(fs.readFileSync(filePath, "utf-8")) as T;
+  } catch {
+    return fallback;
+  }
+}
+
+function readYamlFilesMap(snapshotDir: string): Record<string, string> | undefined {
+  const yamlDir = path.join(snapshotDir, "oasis", "yaml");
+  if (!fs.existsSync(yamlDir) || !fs.statSync(yamlDir).isDirectory()) {
+    return undefined;
+  }
+
+  const result: Record<string, string> = {};
+  fs.readdirSync(yamlDir)
+    .filter((name) => name.endsWith(".yaml") || name.endsWith(".yml"))
+    .sort()
+    .forEach((name) => {
+      try {
+        result[name] = fs.readFileSync(path.join(yamlDir, name), "utf-8");
+      } catch {
+        // ignore malformed file
+      }
+    });
+
+  return Object.keys(result).length ? result : undefined;
+}
+
+function buildLocalSnapshotWorkflow(options: {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  tags: string[];
+  icon: string;
+  snapshotDirName: string;
+  detail: string;
+  author?: string;
+  primaryYamlFile?: string;
+}): Workflow | null {
+  const snapshotDir = path.join(WORKSPACE_ROOT, options.snapshotDirName);
+  if (!fs.existsSync(snapshotDir) || !fs.statSync(snapshotDir).isDirectory()) {
+    return null;
+  }
+
+  const yamlFiles = readYamlFilesMap(snapshotDir);
+  const yamlEntries = yamlFiles ? Object.entries(yamlFiles) : [];
+  const primaryYaml =
+    (options.primaryYamlFile && yamlFiles?.[options.primaryYamlFile]) ||
+    yamlEntries.find(([name]) => name === "fullflow.yaml")?.[1] ||
+    yamlEntries[0]?.[1] ||
+    "";
+
+  const internalAgents = readJsonFile<Agent[]>(path.join(snapshotDir, "internal_agents.json"), []);
+  const externalAgents = readJsonFile<Agent[]>(path.join(snapshotDir, "external_agents.json"), []);
+  const expertsDetail = readJsonFile<Expert[]>(path.join(snapshotDir, "oasis_experts.json"), []);
+
+  return {
+    id: options.id,
+    title: options.title,
+    description: options.description,
+    author: options.author ?? "TeamClawHub Team",
+    tags: options.tags,
+    category: options.category,
+    stars: 0,
+    forks: 0,
+    icon: options.icon,
+    yaml_content: primaryYaml,
+    detail: options.detail,
+    internal_agents: internalAgents,
+    oasis_agents: internalAgents,
+    external_agents: externalAgents,
+    openclaw_agents: externalAgents,
+    experts_detail: expertsDetail,
+    experts: expertsDetail,
+    yaml_files: yamlFiles
+  };
+}
+
+export const PRESET_WORKFLOW_DEFINITIONS: Array<Workflow | null> = [
   {
     id: "ml_code_test",
     title: "ML Code Testing Pipeline",
@@ -402,10 +485,33 @@ edges:
         }
       ]
     }
-  } as unknown as Workflow
+  } as unknown as Workflow,
+  buildLocalSnapshotWorkflow({
+    id: "dataloop2_selector_team",
+    title: "Dataloop2 Selector Team",
+    description: "A multi-agent coding workflow with a selector node that decides whether to continue the debug loop or end the run.",
+    category: "Engineering",
+    tags: ["team", "snapshot", "openclaw", "pipeline", "code"],
+    icon: "🧭",
+    snapshotDirName: "team_Dataloop2_snapshot",
+    primaryYamlFile: "fullflow.yaml",
+    detail:
+      "Imported from a local Team snapshot. This workflow demonstrates selector-based orchestration across architecture, frontend, backend, testing, debugging, and explicit end-state manual nodes."
+  }),
+  buildLocalSnapshotWorkflow({
+    id: "werewolf_game_snapshot",
+    title: "狼人杀 Game Master Team",
+    description: "A Team snapshot for hosting a Werewolf game with a judge and five AI players, each carrying detailed game personas and turn-taking rules.",
+    category: "Community",
+    tags: ["team", "snapshot", "game", "community"],
+    icon: "🐺",
+    snapshotDirName: "team_狼人杀Game_snapshot",
+    detail:
+      "Imported from a local Team snapshot. This pack focuses on agent personas rather than a YAML execution graph: the judge orchestrates the game and the players each follow role-specific speaking, voting, and night-action rules."
+  })
 ];
 
-export const PRESET_WORKFLOWS: Workflow[] = PRESET_WORKFLOW_DEFINITIONS.map((workflow) => ({
+export const PRESET_WORKFLOWS: Workflow[] = PRESET_WORKFLOW_DEFINITIONS.filter((workflow): workflow is Workflow => Boolean(workflow)).map((workflow) => ({
   ...workflow,
   localizations: PRESET_WORKFLOW_LOCALIZATIONS[workflow.id] ?? workflow.localizations
 }));

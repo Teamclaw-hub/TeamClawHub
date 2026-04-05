@@ -13,10 +13,12 @@ export async function GET(_: Request, context: { params: Promise<{ workflowId: s
   }
 
   const body = Uint8Array.from(exported.buffer);
+  const encodedName = encodeURIComponent(exported.filename);
+  const asciiFallbackName = exported.filename.replace(/[^\x20-\x7e]/g, "_");
   return new NextResponse(body, {
     headers: {
       "content-type": "application/zip",
-      "content-disposition": `attachment; filename="${exported.filename}"`
+      "content-disposition": `attachment; filename="${asciiFallbackName}"; filename*=UTF-8''${encodedName}`
     }
   });
 }

@@ -178,9 +178,53 @@ export function scanUserWorkflows(): Array<{
 }
 
 function parseAgentRaw(raw: string): string {
-  const parts = raw.split("#");
-  const tag = parts[0]?.trim();
-  return tag || raw;
+  const parts = raw
+    .split("#")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (!parts.length) {
+    return raw.trim();
+  }
+  if (parts[0].toLowerCase() === "custom" && parts.length >= 3) {
+    return parts.slice(2).join("#").trim() || parts[parts.length - 1];
+  }
+  return parts[0];
+}
+
+function isSelectorLikeAgent(raw: string): boolean {
+  const normalized = parseAgentRaw(raw).toLowerCase();
+  return normalized === "selector" || normalized === "selector_agent" || normalized === "selector-agent";
+}
+
+function isExternalAgentRef(raw: string): boolean {
+  const parts = raw
+    .split("#")
+    .map((part) => part.trim().toLowerCase())
+    .filter(Boolean);
+  const head = parts[0] || "";
+  if (head.startsWith("agent:")) {
+    return true;
+  }
+  if (parts.includes("openclaw") || head.includes("openclaw")) {
+    return true;
+  }
+  return head === "external" || head === "open_claw_agent" || head === "open-claw-agent" || head === "open claw agent";
+}
+
+function shouldTrackAsInternalExpert(raw: string, selectorStep = false): boolean {
+  if (selectorStep) {
+    return false;
+  }
+  if (!raw.trim()) {
+    return false;
+  }
+  if (isSelectorLikeAgent(raw)) {
+    return false;
+  }
+  if (isExternalAgentRef(raw)) {
+    return false;
+  }
+  return true;
 }
 
 export function parseYamlPlanSummary(yamlStr: string): Summary {
@@ -206,19 +250,23 @@ export function parseYamlPlanSummary(yamlStr: string): Summary {
       const row = step as Record<string, unknown>;
       if (row.selector) {
         stepTypes.push("selector");
-        if (typeof row.expert === "string") {
-          expertNames.push(parseAgentRaw(row.expert));
-        }
       } else if (typeof row.expert === "string") {
         stepTypes.push("expert");
-        expertNames.push(parseAgentRaw(row.expert));
+        if (shouldTrackAsInternalExpert(row.expert)) {
+          expertNames.push(parseAgentRaw(row.expert));
+        }
       } else if (Array.isArray(row.parallel)) {
         stepTypes.push("parallel");
         row.parallel.forEach((child) => {
           if (typeof child === "string") {
-            expertNames.push(parseAgentRaw(child));
+            if (shouldTrackAsInternalExpert(child)) {
+              expertNames.push(parseAgentRaw(child));
+            }
           } else if (child && typeof child === "object" && typeof (child as Record<string, unknown>).expert === "string") {
-            expertNames.push(parseAgentRaw(String((child as Record<string, unknown>).expert)));
+            const expertRaw = String((child as Record<string, unknown>).expert);
+            if (shouldTrackAsInternalExpert(expertRaw)) {
+              expertNames.push(parseAgentRaw(expertRaw));
+            }
           }
         });
       } else if (row.all_experts !== undefined) {
@@ -255,6 +303,9 @@ export function extractExpertsFromYaml(yamlContent: string): { experts: Expert[]
 
     const processExpert = (raw: unknown) => {
       if (typeof raw !== "string") {
+        return;
+      }
+      if (!shouldTrackAsInternalExpert(raw)) {
         return;
       }
       const tag = parseAgentRaw(raw);
@@ -295,7 +346,9 @@ export function extractExpertsFromYaml(yamlContent: string): { experts: Expert[]
       }
 
       const row = step as Record<string, unknown>;
-      processExpert(row.expert);
+      if (!row.selector) {
+        processExpert(row.expert);
+      }
       if (Array.isArray(row.parallel)) {
         row.parallel.forEach((child) => {
           if (typeof child === "string") {

@@ -3,6 +3,7 @@ import path from "node:path";
 import AdmZip from "adm-zip";
 import yaml from "js-yaml";
 
+import { buildSnapshotFileName } from "@/lib/snapshot-name";
 import { buildWorkflowLocalizations } from "@/lib/translation";
 import type { Agent, CronJob, Expert, SkillInfo, Workflow } from "@/lib/types";
 import { extractExpertsFromYaml, getWorkflowById, loadHubMeta, saveHubMeta } from "@/lib/workflow-store";
@@ -468,11 +469,8 @@ export function exportWorkflowZip(workflowId: string): { buffer: Buffer; filenam
     });
   }
 
-  const safeTitle = sanitizeFileName(workflow.title || "workflow") || "workflow";
-  const timestamp = new Date().toISOString().replace(/[-:]/g, "").replace(/T/, "_").slice(0, 15);
-
   return {
     buffer: zip.toBuffer(),
-    filename: `team_${safeTitle}_snapshot_${timestamp}.zip`
+    filename: buildSnapshotFileName(workflow.title || "workflow")
   };
 }

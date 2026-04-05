@@ -1,12 +1,14 @@
 "use client";
 
 import { ArrowLeft, Copy, Download, Github, LogOut, Star, UserRound } from "lucide-react";
+import yaml from "js-yaml";
 
 import { SiteHeader } from "@/components/teamclawhub/site-header";
 import { StableI18nText } from "@/components/teamclawhub/stable-i18n-text";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { buildSnapshotFileName } from "@/lib/snapshot-name";
 import { translateValue, useI18n } from "@/lib/i18n";
 import {
   getExternalAgentPersona,
@@ -47,7 +49,7 @@ const TAG_EMOJI: Record<string, string> = {
 const detailActionButtonClass = "h-9 rounded-md border-border bg-background/80 text-foreground hover:bg-secondary";
 const detailActionButtonActiveClass = "border-yellow-400/50 bg-yellow-400/10 text-yellow-500 hover:bg-yellow-400/15";
 
-type ParsedNodeType = "expert" | "manual" | "all" | "selector";
+type ParsedNodeType = "expert" | "manual" | "all" | "selector" | "external";
 
 type ParsedNode = {
   id: string;
@@ -55,6 +57,8 @@ type ParsedNode = {
   displayName: string;
   lookupKeys: string[];
   label?: string;
+  tooltipTitle?: string;
+  tooltipDescription?: string;
 };
 
 type ParsedStep =
@@ -103,6 +107,8 @@ type DiagramNode = {
   lookupKeys?: string[];
   label?: string;
   groupLabel?: string;
+  tooltipTitle?: string;
+  tooltipDescription?: string;
 };
 
 type DiagramEdge = {
@@ -167,14 +173,86 @@ type EngineLayout = {
 
 type AgentLocalizationScopes = Array<"experts" | "internal_agents" | "external_agents">;
 
+const GENERIC_AGENT_TAGS = new Set(["openclaw", "external", "custom", "selector", "selector_agent", "agent", "manual", "all_experts"]);
+
+function isGenericAgentTag(value: string): boolean {
+  return GENERIC_AGENT_TAGS.has(value.trim().toLowerCase());
+}
+
+function isExternalAgentReference(raw: string): boolean {
+  const normalized = String(raw || "").trim().toLowerCase();
+  return normalized.startsWith("agent:") || normalized.startsWith("openclaw#") || normalized.startsWith("external#");
+}
+
 function parseAgent(rawStr: string): { displayName: string; lookupKeys: string[] } {
-  const parts = rawStr.split("#");
-  const tag = (parts[0] || "").trim();
-  if (tag === "custom" && parts.length >= 3) {
-    const agentName = parts.slice(2).join("#");
-    return { displayName: agentName, lookupKeys: [agentName, rawStr, tag] };
+  const raw = String(rawStr || "").trim();
+  if (!raw) {
+    return { displayName: "", lookupKeys: [] };
   }
-  return { displayName: tag || rawStr, lookupKeys: [tag || rawStr] };
+
+  if (raw.toLowerCase().startsWith("agent:")) {
+    const agentName = raw.slice(6).trim();
+    if (agentName) {
+      return { displayName: agentName, lookupKeys: [agentName, raw, "openclaw"] };
+    }
+  }
+
+  const parts = raw.split("#").map((part) => part.trim());
+  const head = (parts[0] || "").trim();
+  const headLower = head.toLowerCase();
+
+  if (headLower === "custom" && parts.length >= 3) {
+    const agentName = parts.slice(2).join("#").trim();
+    return { displayName: agentName || head, lookupKeys: [agentName || head, raw, head] };
+  }
+
+  if ((headLower === "openclaw" || headLower === "external" || headLower === "agent") && parts.length >= 2) {
+    const agentName = parts[parts.length - 1]?.trim() || "";
+    if (agentName && !isGenericAgentTag(agentName)) {
+      return { displayName: agentName, lookupKeys: [agentName, raw, head] };
+    }
+  }
+
+  if (headLower === "custom" && parts.length >= 2) {
+    const agentName = parts[parts.length - 1]?.trim() || "";
+    if (agentName) {
+      return { displayName: agentName, lookupKeys: [agentName, raw, head] };
+    }
+  }
+
+  return { displayName: head || raw, lookupKeys: [head || raw, raw] };
+}
+
+function resolveDisplayNameFromEngineNode(node: EngineNode, index: number): { displayName: string; lookupKeys: string[]; label: string } {
+  const rawName = String(node.name || "").trim();
+  const rawTag = String(node.tag || "").trim();
+  const parsedName = rawName ? parseAgent(rawName) : { displayName: "", lookupKeys: [] };
+  const parsedTag = rawTag ? parseAgent(rawTag) : { displayName: "", lookupKeys: [] };
+
+  let displayName = parsedName.displayName;
+  if (!displayName || isGenericAgentTag(displayName)) {
+    if (parsedTag.displayName && !isGenericAgentTag(parsedTag.displayName)) {
+      displayName = parsedTag.displayName;
+    }
+  }
+  if (!displayName) {
+    displayName = rawName || rawTag || `node_${index + 1}`;
+  }
+
+  const lookupSet = new Set<string>();
+  [displayName, rawName, rawTag, ...parsedName.lookupKeys, ...parsedTag.lookupKeys].forEach((item) => {
+    const value = String(item || "").trim();
+    if (value) {
+      lookupSet.add(value);
+    }
+  });
+
+  const label = rawTag || parsedTag.displayName || displayName;
+  return {
+    displayName,
+    lookupKeys: [...lookupSet],
+    label
+  };
 }
 
 function parseDependsOnIds(raw: string): string[] {
@@ -196,221 +274,224 @@ function parseYamlToFlowNodes(
   labels: { allExperts: string; manual: string; selector: string }
 ): ParsedFlow {
   try {
-    const lines = (yamlStr || "").split("\n");
+    const parsed = yaml.load(yamlStr || "");
+    const root = parsed && typeof parsed === "object" ? (parsed as Record<string, unknown>) : {};
+    const plan = Array.isArray(root.plan) ? root.plan : [];
+
     const nodes: ParsedStep[] = [];
-    let inParallel = false;
-    let parallelItems: Array<{ displayName: string; lookupKeys: string[] }> = [];
-    let nodeId = 0;
-    let dagEdges: Array<[string, string]> | null = null;
-    let inEdges = false;
-    let edgePair: string[] = [];
+    const rawDagEdges: Array<[string, string]> = [];
     const dagIdMap: Record<string, string> = {};
-    let currentDagId = "";
+    let nodeId = 0;
 
-    for (const line of lines) {
-      const trimmed = line.trim();
+    const asRecord = (value: unknown): Record<string, unknown> | null => {
+      return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
+    };
+    const normalizeRef = (value: unknown): string => {
+      if (typeof value === "string") return value.trim();
+      if (typeof value === "number" || typeof value === "boolean") return String(value);
+      return "";
+    };
+    const parseDependsOnValue = (value: unknown): string[] => {
+      if (Array.isArray(value)) {
+        return value.map((item) => normalizeRef(item)).filter(Boolean);
+      }
+      if (typeof value === "string") {
+        const trimmed = value.trim();
+        if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+          return parseDependsOnIds(`depends_on: ${trimmed}`);
+        }
+        return trimmed ? [trimmed] : [];
+      }
+      return [];
+    };
+    const parseChoices = (value: unknown): Record<string, string> => {
+      const result: Record<string, string> = {};
+      const row = asRecord(value);
+      if (!row) return result;
+      Object.entries(row).forEach(([choiceKey, target]) => {
+        const targetRef = normalizeRef(target);
+        if (targetRef) {
+          result[String(choiceKey)] = targetRef;
+        }
+      });
+      return result;
+    };
 
-      if (trimmed === "edges:") {
-        inEdges = true;
-        inParallel = false;
-        dagEdges = [];
-        continue;
+    plan.forEach((stepRaw) => {
+      if (typeof stepRaw === "string") {
+        const info = parseAgent(stepRaw);
+        nodes.push({ id: `n${nodeId++}`, type: "expert", displayName: info.displayName, lookupKeys: info.lookupKeys });
+        return;
       }
 
-      if (trimmed === "selector_edges:" || trimmed === "conditional_edges:") {
-        inEdges = false;
-        // These sections are parsed separately via js-yaml below
-        continue;
+      const step = asRecord(stepRaw);
+      if (!step) {
+        return;
       }
 
-      if (inEdges) {
-        if (trimmed.startsWith("- - ")) {
-          if (edgePair.length === 2) {
-            dagEdges?.push([edgePair[0], edgePair[1]]);
-          }
-          edgePair = [trimmed.replace("- - ", "").trim()];
-        } else if (trimmed.startsWith("- ") && edgePair.length === 1) {
-          edgePair.push(trimmed.replace("- ", "").trim());
-        }
-        continue;
-      }
+      const stepId = normalizeRef(step.id);
 
-      if (trimmed.startsWith("- expert:")) {
-        const raw = trimmed.replace("- expert:", "").trim().replace(/"/g, "");
-        const info = parseAgent(raw);
-        if (inParallel) {
-          parallelItems.push(info);
-        } else {
-          nodes.push({ id: `n${nodeId++}`, type: "expert", displayName: info.displayName, lookupKeys: info.lookupKeys });
-        }
-      } else if (trimmed.startsWith("- parallel:")) {
-        inParallel = true;
-        parallelItems = [];
-      } else if (trimmed.startsWith('- "') && inParallel) {
-        const rawP = trimmed.replace(/^- "/, "").replace(/"$/, "");
-        parallelItems.push(parseAgent(rawP));
-      } else if (trimmed.startsWith("- all_experts:")) {
-        nodes.push({ id: `n${nodeId++}`, type: "all", displayName: labels.allExperts, lookupKeys: [] });
-      } else if (trimmed.startsWith("- manual:") || trimmed.startsWith("manual:")) {
-        if (!inParallel) {
-          nodes.push({ id: `n${nodeId++}`, type: "manual", displayName: labels.manual, lookupKeys: [] });
-        }
-      } else if (trimmed.startsWith("- id:")) {
-        const dagId = trimmed.replace("- id:", "").trim();
-        currentDagId = dagId;
-        const nid = `n${nodeId++}`;
-        nodes.push({ id: nid, type: "expert", displayName: dagId, lookupKeys: [], label: dagId });
-        dagIdMap[dagId] = nid;
-      } else if (trimmed.startsWith("expert:") && nodes.length > 0) {
-        const last = nodes[nodes.length - 1];
-        if (last.type !== "parallel_group" && last.lookupKeys.length === 0 && last.label) {
-          const rawDag = trimmed.replace("expert:", "").trim().replace(/"/g, "");
-          const dagInfo = parseAgent(rawDag);
-          last.displayName = dagInfo.displayName;
-          last.lookupKeys = dagInfo.lookupKeys;
-        }
-      } else if (trimmed === "selector: true" && nodes.length > 0) {
-        // v2 selector node — mark the last node as selector type
-        const last = nodes[nodes.length - 1];
-        if (last.type !== "parallel_group") {
-          (last as ParsedNode).type = "selector";
-          last.displayName = last.displayName || labels.selector;
-        }
-      } else if (trimmed.startsWith("content:") && nodes.length > 0) {
-        // v2 manual node content — update display name
-        const last = nodes[nodes.length - 1];
-        if (last.type === "manual") {
-          const content = trimmed.replace("content:", "").trim().replace(/^['"]|['"]$/g, "");
-          if (content) last.displayName = content;
-        }
-      } else if (trimmed.startsWith("depends_on:") && currentDagId) {
-        const deps = parseDependsOnIds(trimmed);
-        if (deps.length) {
-          if (!dagEdges) {
-            dagEdges = [];
-          }
-          deps.forEach((source) => {
-            dagEdges?.push([source, currentDagId]);
+      if (Array.isArray(step.parallel)) {
+        const groupId = `g${nodeId++}`;
+        const children = step.parallel
+          .map((item) => {
+            if (typeof item === "string") {
+              return parseAgent(item);
+            }
+            const childRow = asRecord(item);
+            const childExpert = childRow ? normalizeRef(childRow.expert) : "";
+            return childExpert ? parseAgent(childExpert) : null;
+          })
+          .filter(Boolean)
+          .map((info) => {
+            const parsedInfo = info as { displayName: string; lookupKeys: string[] };
+            return {
+              id: `n${nodeId++}`,
+              type: "expert" as const,
+              displayName: parsedInfo.displayName,
+              lookupKeys: parsedInfo.lookupKeys,
+              groupId
+            };
           });
-        }
-      }
-
-      if (
-        inParallel &&
-        (trimmed.startsWith("- expert:") || trimmed.startsWith("- all_experts:") || trimmed.startsWith("- manual:") || trimmed === "") &&
-        !trimmed.startsWith('- "') &&
-        !trimmed.startsWith("- parallel:") &&
-        trimmed !== "" &&
-        !line.startsWith("      ")
-      ) {
-        if (parallelItems.length > 0) {
-          const groupId = `g${nodeId++}`;
-          const children = parallelItems.map((info) => ({
-            id: `n${nodeId++}`,
-            type: "expert" as const,
-            displayName: info.displayName,
-            lookupKeys: info.lookupKeys,
-            groupId
-          }));
+        if (children.length) {
           nodes.push({ id: groupId, type: "parallel_group", children });
-          parallelItems = [];
-          inParallel = false;
-
-          if (trimmed.startsWith("- expert:")) {
-            const rawRe = trimmed.replace("- expert:", "").trim().replace(/"/g, "");
-            const reInfo = parseAgent(rawRe);
-            nodes.push({ id: `n${nodeId++}`, type: "expert", displayName: reInfo.displayName, lookupKeys: reInfo.lookupKeys });
+          if (stepId) {
+            dagIdMap[stepId] = groupId;
           }
         }
+        return;
       }
+
+      let type: ParsedNodeType | null = null;
+      let displayName = "";
+      let lookupKeys: string[] = [];
+      let tooltipTitle = "";
+      let tooltipDescription = "";
+
+      if (step.all_experts !== undefined) {
+        type = "all";
+        displayName = labels.allExperts;
+      } else if (step.manual !== undefined) {
+        type = "manual";
+        const manualRecord = asRecord(step.manual);
+        const content = normalizeRef(step.content) || normalizeRef(manualRecord?.content);
+        const author = normalizeRef(step.author) || normalizeRef(manualRecord?.author);
+        const manual = normalizeRef(step.manual);
+        displayName = author || content || (manual && manual !== "true" ? manual : labels.manual);
+        lookupKeys = author ? [author, "manual"] : ["manual"];
+        tooltipTitle = author || displayName || labels.manual;
+        tooltipDescription = content;
+      } else {
+        const expertRaw = normalizeRef(step.expert);
+        if (expertRaw) {
+          const info = parseAgent(expertRaw);
+          type = step.selector === true ? "selector" : isExternalAgentReference(expertRaw) ? "external" : "expert";
+          displayName = info.displayName || (type === "selector" ? labels.selector : expertRaw);
+          lookupKeys = info.lookupKeys;
+        }
+      }
+
+      if (!type) {
+        return;
+      }
+
+      const nid = `n${nodeId++}`;
+      nodes.push({
+        id: nid,
+        type,
+        displayName,
+        lookupKeys,
+        label: stepId || undefined,
+        tooltipTitle: tooltipTitle || undefined,
+        tooltipDescription: tooltipDescription || undefined
+      });
+
+      if (stepId) {
+        dagIdMap[stepId] = nid;
+      }
+
+      const dependsOn = parseDependsOnValue(step.depends_on);
+      const targetRef = stepId || nid;
+      dependsOn.forEach((src) => {
+        rawDagEdges.push([src, targetRef]);
+      });
+    });
+
+    if (Array.isArray(root.edges)) {
+      root.edges.forEach((edgeRaw) => {
+        if (Array.isArray(edgeRaw) && edgeRaw.length >= 2) {
+          const src = normalizeRef(edgeRaw[0]);
+          const tgt = normalizeRef(edgeRaw[1]);
+          if (src && tgt) {
+            rawDagEdges.push([src, tgt]);
+          }
+          return;
+        }
+        const edge = asRecord(edgeRaw);
+        if (!edge) return;
+        const src = normalizeRef(edge.source);
+        const tgt = normalizeRef(edge.target);
+        if (src && tgt) {
+          rawDagEdges.push([src, tgt]);
+        }
+      });
     }
 
-    if (edgePair.length === 2 && dagEdges) {
-      dagEdges.push([edgePair[0], edgePair[1]]);
-    }
-
-    if (inParallel && parallelItems.length > 0) {
-      const groupId = `g${nodeId++}`;
-      const children = parallelItems.map((info) => ({
-        id: `n${nodeId++}`,
-        type: "expert" as const,
-        displayName: info.displayName,
-        lookupKeys: info.lookupKeys,
-        groupId
-      }));
-      nodes.push({ id: groupId, type: "parallel_group", children });
-    }
-
-    if (dagEdges) {
-      dagEdges = dagEdges
-        .map(([src, tgt]) => [dagIdMap[src] || src, dagIdMap[tgt] || tgt] as [string, string])
-        .filter(([src, tgt]) => Boolean(src && tgt));
-    }
-
-    // Parse selector_edges and conditional_edges using structured YAML parsing
     let selectorEdges: ParsedSelectorEdge[] = [];
-    let conditionalEdges: ParsedConditionalEdge[] = [];
-    try {
-      // Simple structured parse for selector_edges and conditional_edges sections
-      const selMatch = yamlStr.match(/selector_edges:\s*\n((?:[ \t]+-[\s\S]*?)(?=\n\w|\n*$))/m);
-      if (selMatch) {
-        const selBlock = selMatch[1];
-        // Parse each "- source: ...\n  choices:" block
-        const selEntries = selBlock.split(/\n(?=- source:)/);
-        selEntries.forEach((entry) => {
-          const srcMatch = entry.match(/source:\s*([\w]+)/);
-          const choicesBlock = entry.match(/choices:\s*\n((?:\s+'?\d+'?:\s*\w+\n?)+)/);
-          if (srcMatch && choicesBlock) {
-            const choices: Record<string, string> = {};
-            const choiceLines = choicesBlock[1].match(/'?(\d+)'?:\s*(\w+)/g);
-            if (choiceLines) {
-              choiceLines.forEach((cl) => {
-                const cm = cl.match(/'?(\d+)'?:\s*(\w+)/);
-                if (cm) choices[cm[1]] = cm[2];
-              });
-            }
-            if (srcMatch[1] && Object.keys(choices).length) {
-              selectorEdges.push({ source: srcMatch[1], choices });
-            }
-          }
-        });
-      }
-
-      const condMatch = yamlStr.match(/conditional_edges:\s*\n((?:[ \t]+-[\s\S]*?)(?=\n\w|\n*$))/m);
-      if (condMatch) {
-        const condBlock = condMatch[1];
-        const condEntries = condBlock.split(/\n(?=- source:)/);
-        condEntries.forEach((entry) => {
-          const srcMatch = entry.match(/source:\s*([\w]+)/);
-          const conditionMatch = entry.match(/condition:\s*['"]?(.+?)['"]?\s*$/m);
-          const thenMatch = entry.match(/then:\s*([\w]+)/);
-          const elseMatch = entry.match(/else:\s*([\w]+)/);
-          if (srcMatch && thenMatch) {
-            conditionalEdges.push({
-              source: srcMatch[1],
-              condition: conditionMatch ? conditionMatch[1] : "",
-              then: thenMatch[1],
-              else: elseMatch ? elseMatch[1] : undefined
-            });
-          }
-        });
-      }
-    } catch {
-      // ignore parsing errors for selector/conditional edges
+    if (Array.isArray(root.selector_edges)) {
+      selectorEdges = root.selector_edges
+        .map((entryRaw) => {
+          const entry = asRecord(entryRaw);
+          if (!entry) return null;
+          const source = normalizeRef(entry.source);
+          const choices = parseChoices(entry.choices);
+          if (!source || !Object.keys(choices).length) return null;
+          return { source, choices };
+        })
+        .filter(Boolean) as ParsedSelectorEdge[];
     }
 
-    // Map selector/conditional edge IDs through dagIdMap
+    let conditionalEdges: ParsedConditionalEdge[] = [];
+    if (Array.isArray(root.conditional_edges)) {
+      conditionalEdges = root.conditional_edges
+        .map((entryRaw) => {
+          const entry = asRecord(entryRaw);
+          if (!entry) return null;
+          const source = normalizeRef(entry.source);
+          const then = normalizeRef(entry.then);
+          const elseTarget = normalizeRef(entry.else);
+          const condition = normalizeRef(entry.condition);
+          if (!source || !then) return null;
+          return {
+            source,
+            condition,
+            then,
+            else: elseTarget || undefined
+          };
+        })
+        .filter(Boolean) as ParsedConditionalEdge[];
+    }
+
+    let dagEdges: Array<[string, string]> | null = rawDagEdges
+      .map(([src, tgt]) => [dagIdMap[src] || src, dagIdMap[tgt] || tgt] as [string, string])
+      .filter(([src, tgt]) => Boolean(src && tgt));
+    if (!dagEdges.length) {
+      dagEdges = null;
+    }
+
     selectorEdges = selectorEdges.map((se) => ({
       source: dagIdMap[se.source] || se.source,
       choices: Object.fromEntries(
-        Object.entries(se.choices).map(([k, v]) => [k, dagIdMap[v] || v])
+        Object.entries(se.choices)
+          .map(([choice, target]) => [choice, dagIdMap[target] || target])
+          .filter(([, target]) => Boolean(target))
       )
     }));
     conditionalEdges = conditionalEdges.map((ce) => ({
       source: dagIdMap[ce.source] || ce.source,
       condition: ce.condition,
       then: dagIdMap[ce.then] || ce.then,
-      else: ce.else ? (dagIdMap[ce.else] || ce.else) : undefined
+      else: ce.else ? dagIdMap[ce.else] || ce.else : undefined
     }));
 
     return { nodes, dagEdges, selectorEdges, conditionalEdges };
@@ -439,15 +520,18 @@ function buildGraphLayout(parsed: ParsedFlow): GraphLayout {
   // Collect all node IDs (including flattening parallel groups)
   const allNodeIds: string[] = [];
   const nodeMap: Record<string, ParsedStep> = {};
+  const nodeOrder = new Map<string, number>();
   steps.forEach((step) => {
     if (step.type === "parallel_group") {
       (step.children || []).forEach((child) => {
         allNodeIds.push(child.id);
         nodeMap[child.id] = { id: child.id, type: "expert", displayName: child.displayName, lookupKeys: child.lookupKeys } as ParsedNode;
+        nodeOrder.set(child.id, nodeOrder.size);
       });
     } else {
       allNodeIds.push(step.id);
       nodeMap[step.id] = step;
+      nodeOrder.set(step.id, nodeOrder.size);
     }
   });
 
@@ -468,50 +552,143 @@ function buildGraphLayout(parsed: ParsedFlow): GraphLayout {
 
   // If we have DAG edges or advanced edges, use topological column layout
   if ((dagEdges?.length || hasAdvancedEdges) && allEdgePairs.length > 0) {
-    // Build adjacency for topological sort
+    const dagOnlyEdges = dagEdges ?? [];
+    const dagAdj = new Map<string, string[]>();
+    allNodeIds.forEach((id) => {
+      dagAdj.set(id, []);
+    });
+    dagOnlyEdges.forEach(([src, tgt]) => {
+      dagAdj.get(src)?.push(tgt);
+    });
+
+    const pathCache = new Map<string, boolean>();
+    const hasDagPath = (sourceId: string, targetId: string): boolean => {
+      const cacheKey = `${sourceId}->${targetId}`;
+      const cached = pathCache.get(cacheKey);
+      if (typeof cached === "boolean") {
+        return cached;
+      }
+
+      const visited = new Set<string>();
+      const queue = [sourceId];
+      while (queue.length > 0) {
+        const current = queue.shift();
+        if (!current || visited.has(current)) {
+          continue;
+        }
+        if (current === targetId) {
+          pathCache.set(cacheKey, true);
+          return true;
+        }
+        visited.add(current);
+        (dagAdj.get(current) ?? []).forEach((next) => {
+          if (!visited.has(next)) {
+            queue.push(next);
+          }
+        });
+      }
+
+      pathCache.set(cacheKey, false);
+      return false;
+    };
+
+    const layoutEdgePairs: Array<{ src: string; tgt: string }> = [];
+    dagOnlyEdges.forEach(([src, tgt]) => {
+      layoutEdgePairs.push({ src, tgt });
+    });
+    (parsed.selectorEdges || []).forEach((se) => {
+      Object.values(se.choices).forEach((tgt) => {
+        if (!hasDagPath(tgt, se.source)) {
+          layoutEdgePairs.push({ src: se.source, tgt });
+        }
+      });
+    });
+    (parsed.conditionalEdges || []).forEach((ce) => {
+      if (!hasDagPath(ce.then, ce.source)) {
+        layoutEdgePairs.push({ src: ce.source, tgt: ce.then });
+      }
+      if (ce.else && !hasDagPath(ce.else, ce.source)) {
+        layoutEdgePairs.push({ src: ce.source, tgt: ce.else });
+      }
+    });
+
     const inDeg: Record<string, number> = {};
     const adj: Record<string, string[]> = {};
-    allNodeIds.forEach((id) => { inDeg[id] = 0; adj[id] = []; });
-    allEdgePairs.forEach(({ src, tgt }) => {
+    const predecessors: Record<string, string[]> = {};
+    allNodeIds.forEach((id) => {
+      inDeg[id] = 0;
+      adj[id] = [];
+      predecessors[id] = [];
+    });
+    layoutEdgePairs.forEach(({ src, tgt }) => {
       if (adj[src] && inDeg[tgt] !== undefined) {
         adj[src].push(tgt);
+        predecessors[tgt].push(src);
         inDeg[tgt]++;
       }
     });
 
-    // Topological sort by layers (BFS)
-    const columns: string[][] = [];
-    const assigned = new Set<string>();
-    let queue = allNodeIds.filter((id) => inDeg[id] === 0);
+    const queue = allNodeIds
+      .filter((id) => inDeg[id] === 0)
+      .sort((a, b) => (nodeOrder.get(a) ?? 0) - (nodeOrder.get(b) ?? 0));
+    const topo: string[] = [];
+    const columnIndex: Record<string, number> = {};
     while (queue.length > 0) {
-      columns.push([...queue]);
-      queue.forEach((id) => assigned.add(id));
-      const next: string[] = [];
-      queue.forEach((id) => {
-        (adj[id] || []).forEach((tgt) => {
-          inDeg[tgt]--;
-          if (inDeg[tgt] === 0 && !assigned.has(tgt)) {
-            next.push(tgt);
-          }
-        });
-      });
-      queue = next;
-    }
-    // Add any remaining nodes not in the graph
-    const remaining = allNodeIds.filter((id) => !assigned.has(id));
-    if (remaining.length) columns.push(remaining);
+      const id = queue.shift()!;
+      topo.push(id);
+      const preds = predecessors[id] || [];
+      columnIndex[id] = preds.length ? Math.max(...preds.map((pred) => columnIndex[pred] + 1)) : 0;
 
-    // Position nodes by column (x) and row (y) within each column
-    let cx = PAD;
-    columns.forEach((col) => {
-      const totalH = col.length * NH + Math.max(0, col.length - 1) * VGAP;
-      const startY = PAD;
-      col.forEach((id, idx) => {
+      (adj[id] || []).forEach((tgt) => {
+        inDeg[tgt] -= 1;
+        if (inDeg[tgt] === 0) {
+          queue.push(tgt);
+          queue.sort((a, b) => (nodeOrder.get(a) ?? 0) - (nodeOrder.get(b) ?? 0));
+        }
+      });
+    }
+
+    allNodeIds.forEach((id) => {
+      if (typeof columnIndex[id] !== "number") {
+        columnIndex[id] = 0;
+        topo.push(id);
+      }
+    });
+
+    const columns = new Map<number, string[]>();
+    topo.forEach((id) => {
+      const column = columnIndex[id] ?? 0;
+      if (!columns.has(column)) {
+        columns.set(column, []);
+      }
+      columns.get(column)!.push(id);
+    });
+
+    const positioned = new Map<string, DiagramNode>();
+    const sortedColumns = [...columns.entries()].sort((a, b) => a[0] - b[0]);
+    sortedColumns.forEach(([column, ids]) => {
+      const cx = PAD + column * (NW + HGAP);
+      const orderedIds = [...ids].sort((a, b) => {
+        const aPreds = predecessors[a] || [];
+        const bPreds = predecessors[b] || [];
+        const aAvg = aPreds.length
+          ? aPreds.reduce((sum, pred) => sum + (positioned.get(pred)?.y ?? PAD), 0) / aPreds.length
+          : Number.POSITIVE_INFINITY;
+        const bAvg = bPreds.length
+          ? bPreds.reduce((sum, pred) => sum + (positioned.get(pred)?.y ?? PAD), 0) / bPreds.length
+          : Number.POSITIVE_INFINITY;
+        if (aAvg !== bAvg) {
+          return aAvg - bAvg;
+        }
+        return (nodeOrder.get(a) ?? 0) - (nodeOrder.get(b) ?? 0);
+      });
+
+      orderedIds.forEach((id, idx) => {
         const step = nodeMap[id];
         if (!step) return;
         const pNode = step as ParsedNode;
-        const ny = startY + idx * (NH + VGAP);
-        layoutNodes.push({
+        const ny = PAD + idx * (NH + VGAP);
+        const layoutNode: DiagramNode = {
           id,
           x: cx,
           y: ny,
@@ -520,10 +697,13 @@ function buildGraphLayout(parsed: ParsedFlow): GraphLayout {
           type: pNode.type || "expert",
           displayName: pNode.displayName,
           lookupKeys: pNode.lookupKeys,
-          label: pNode.label
-        });
+          label: pNode.label,
+          tooltipTitle: pNode.tooltipTitle,
+          tooltipDescription: pNode.tooltipDescription
+        };
+        layoutNodes.push(layoutNode);
+        positioned.set(id, layoutNode);
       });
-      cx += NW + HGAP;
     });
 
     // Add fixed (DAG) edges
@@ -592,7 +772,9 @@ function buildGraphLayout(parsed: ParsedFlow): GraphLayout {
         type: step.type,
         displayName: step.displayName,
         lookupKeys: step.lookupKeys,
-        label: step.label
+        label: step.label,
+        tooltipTitle: step.tooltipTitle,
+        tooltipDescription: step.tooltipDescription
       });
 
       prevIds.forEach((sourceId) => {
@@ -715,8 +897,7 @@ function buildGraphLayoutFromEngine(raw: unknown, labels: { selector: string }):
 
     const x = asNumber(node.x, PAD + index * 200);
     const y = asNumber(node.y, PAD);
-    const displayName = String(node.name || node.tag || `node_${index + 1}`);
-    const lookupKey = String(node.tag || displayName);
+    const resolved = resolveDisplayNameFromEngineNode(node, index);
     nodes.push({
       id,
       x,
@@ -724,9 +905,9 @@ function buildGraphLayoutFromEngine(raw: unknown, labels: { selector: string }):
       w: NODE_W,
       h: NODE_H,
       type,
-      displayName,
-      lookupKeys: [lookupKey, displayName],
-      label: node.isSelector ? labels.selector : lookupKey
+      displayName: resolved.displayName,
+      lookupKeys: resolved.lookupKeys,
+      label: node.isSelector ? labels.selector : resolved.label
     });
   });
 
@@ -821,6 +1002,37 @@ function buildGraphLayoutFromEngine(raw: unknown, labels: { selector: string }):
     nodes: [...groups, ...nodes],
     edges
   };
+}
+
+function mergeLayoutMetadata(layout: GraphLayout, parsed: ParsedFlow): GraphLayout {
+  const parsedManualNodes = parsed.nodes.filter((node): node is ParsedNode => node.type !== "parallel_group" && node.type === "manual");
+  if (!parsedManualNodes.length) {
+    return layout;
+  }
+
+  let manualIndex = 0;
+  const nodes = layout.nodes.map((node) => {
+    if (node.type !== "manual") {
+      return node;
+    }
+
+    const parsedManual = parsedManualNodes[manualIndex];
+    manualIndex += 1;
+    if (!parsedManual) {
+      return node;
+    }
+
+    return {
+      ...node,
+      displayName: parsedManual.displayName || node.displayName,
+      lookupKeys: parsedManual.lookupKeys.length ? parsedManual.lookupKeys : node.lookupKeys,
+      label: parsedManual.label || node.label,
+      tooltipTitle: parsedManual.tooltipTitle || node.tooltipTitle,
+      tooltipDescription: parsedManual.tooltipDescription || node.tooltipDescription
+    };
+  });
+
+  return { ...layout, nodes };
 }
 
 function buildExpertsMap(workflow: Workflow): Record<string, Expert> {
@@ -1261,7 +1473,11 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
   );
   const parsedFlow = useMemo(() => parseYamlToFlowNodes(activeYamlContent, detailNodeLabels), [activeYamlContent, detailNodeLabels]);
   const engineLayout = useMemo(() => buildGraphLayoutFromEngine(engineLayoutRaw, detailNodeLabels), [detailNodeLabels, engineLayoutRaw]);
-  const layout = useMemo(() => engineLayout ?? buildGraphLayout(parsedFlow), [engineLayout, parsedFlow]);
+  const preferClientLayout = parsedFlow.selectorEdges.length > 0 || parsedFlow.conditionalEdges.length > 0;
+  const layout = useMemo(() => {
+    const baseLayout = !preferClientLayout && engineLayout ? engineLayout : buildGraphLayout(parsedFlow);
+    return mergeLayoutMetadata(baseLayout, parsedFlow);
+  }, [engineLayout, parsedFlow, preferClientLayout]);
 
   const internalAgents = useMemo(
     () => (workflow && Array.isArray(workflow.internal_agents) ? workflow.internal_agents : Array.isArray(workflow?.oasis_agents) ? workflow.oasis_agents : []),
@@ -1376,12 +1592,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
     return { oasis: oasisAgents, openclaw: openclawAgents, external: externalAgentsList, custom: customAgentsList };
   }, [workflow, internalAgents, externalAgents]);
   const curlDownloadUrl = `${siteOrigin || "https://teamclawhub.com"}/api/workflows/${workflowId}/download`;
-  const curlSafeTitle = (workflow?.title || "workflow")
-    .toLowerCase()
-    .replace(/[\s\u2014]+/g, "_")
-    .replace(/[^a-z0-9_-]/g, "")
-    .slice(0, 40) || "workflow";
-  const curlDownloadCommand = `curl -L -o "team_${curlSafeTitle}_snapshot.zip" "${curlDownloadUrl}"`;
+  const curlDownloadCommand = `curl -L -o "${buildSnapshotFileName(workflow?.title || "workflow")}" "${curlDownloadUrl}"`;
   const localizeWorkflowText = useCallback(
     (field: "title" | "description" | "detail" | "category", fallback: string): string => {
       return workflow ? pickWorkflowText(workflow, field, fallback, currentLocale) : fallback;
@@ -1628,7 +1839,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
           <CardHeader className="flex flex-row items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <CardTitle>{t("detail.workflowDiagram")}</CardTitle>
-              {engineLayout ? (
+              {engineLayout && !preferClientLayout ? (
                 <Badge variant="outline" className="border-violet-500/60 text-violet-300">
                   {t("detail.engineV2")}
                 </Badge>
@@ -1739,6 +1950,8 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
                         const emoji =
                           node.type === "external"
                             ? "🦞"
+                            : node.type === "manual"
+                              ? "📝"
                             : node.type === "selector"
                               ? "🎯"
                               : TAG_EMOJI[firstKey] || TAG_EMOJI[node.displayName || ""] || "⭐";
@@ -1750,6 +1963,9 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
                         const localizedInfoPersona = info
                           ? localizeAgentPersona(info.name || node.displayName || "", info.tag, ["experts", "internal_agents"], info.persona || "")
                           : "";
+                        const fallbackTooltipTitle = node.tooltipTitle || localizedInfoName || node.displayName || "";
+                        const fallbackTooltipDescription = node.tooltipDescription || "";
+                        const shouldShowTooltip = Boolean(info || fallbackTooltipTitle || fallbackTooltipDescription);
 
                         return (
                           <div
@@ -1764,14 +1980,14 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
                               {tagLabel ? <div className="fg-tag">{localizeTag(tagLabel)}</div> : null}
                             </div>
                             <div className="fg-port port-out" />
-                            {info ? (
+                            {shouldShowTooltip ? (
                               <div className="agent-tooltip">
                                 <div className="tt-name">
-                                  {TAG_EMOJI[info.tag] || "⭐"} {localizedInfoName || info.name || node.displayName}
+                                  {info ? (TAG_EMOJI[info.tag] || "⭐") : emoji} {info ? (localizedInfoName || info.name || node.displayName) : fallbackTooltipTitle}
                                 </div>
-                                <div className="tt-tag">{t("detail.tagPrefix")}{localizeTag(info.tag || firstKey)}</div>
-                                {localizedInfoPersona ? <div className="tt-persona">{localizedInfoPersona}</div> : null}
-                                {typeof info.temperature !== "undefined" ? <div className="tt-temp">{t("detail.temperaturePrefix")}{info.temperature}</div> : null}
+                                {info ? <div className="tt-tag">{t("detail.tagPrefix")}{localizeTag(info.tag || firstKey)}</div> : null}
+                                {localizedInfoPersona || fallbackTooltipDescription ? <div className="tt-persona">{localizedInfoPersona || fallbackTooltipDescription}</div> : null}
+                                {info && typeof info.temperature !== "undefined" ? <div className="tt-temp">{t("detail.temperaturePrefix")}{info.temperature}</div> : null}
                               </div>
                             ) : null}
                           </div>
