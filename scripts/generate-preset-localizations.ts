@@ -9,7 +9,7 @@ import { getWorkflowById } from "../lib/workflow-store";
 async function main() {
   const localizationsById: Record<string, WorkflowLocalizations> = {};
 
-  for (const preset of PRESET_WORKFLOW_DEFINITIONS) {
+  for (const preset of PRESET_WORKFLOW_DEFINITIONS.filter((p): p is NonNullable<typeof p> => p !== null)) {
     console.log(`Translating preset: ${preset.id}`);
     const workflow = getWorkflowById(preset.id) ?? preset;
     delete workflow.localizations;
