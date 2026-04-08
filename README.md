@@ -1,6 +1,6 @@
 # 🌊 WecliHub
 
-**A community marketplace for discovering, sharing, and distributing multi-agent OASIS workflows — built for [Wecli](https://github.com/Teamclaw-hub/WeCli).**
+**A community marketplace for discovering, sharing, and distributing multi-agent OASIS workflows — built for [Wecli](https://github.com/WeCli/WeCli).**
 
 WecliHub is where Wecli teams publish their workflow templates so others can browse, star, download, and remix them. Think of it as a "workflow app store" for multi-agent orchestration.
 
@@ -78,8 +78,8 @@ curl -L -o workflow.zip https://wecli.net/api/workflows/<id>/download
 
 ```bash
 # Clone the repository
-git clone https://github.com/Teamclaw-hub/TeamClawHub.git
-cd TeamClawHub
+git clone https://github.com/WeCli/WeCliHub.git
+cd WeCliHub
 
 # Install dependencies
 npm install
@@ -227,7 +227,7 @@ WecliHub uses a **lightweight JSON file store** (no external database):
 
 ## 🤝 Relation to Wecli
 
-WecliHub is a companion project to [Wecli](https://github.com/Teamclaw-hub/WeCli) — a multi-agent collaboration framework. The relationship:
+WecliHub is a companion project to [Wecli](https://github.com/WeCli/WeCli) — a multi-agent collaboration framework. The relationship:
 
 - **Wecli** → The runtime engine. Creates teams of AI agents that collaborate through OASIS workflows.
 - **WecliHub** → The distribution hub. Lets users share and discover workflow templates that run on Wecli.

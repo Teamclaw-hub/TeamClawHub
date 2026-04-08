@@ -55,7 +55,7 @@ export function SiteHeader({ activePage, repoLabelKey = "header.wecli", children
           <LanguageToggle />
 
           <a
-            href="https://github.com/Teamclaw-hub/WeCli"
+            href="https://github.com/WeCli/WeCli"
             target="_blank"
             rel="noreferrer"
             className={cn(buttonVariants({ variant: "outline" }), "hidden sm:inline-flex")}
@@ -65,7 +65,7 @@ export function SiteHeader({ activePage, repoLabelKey = "header.wecli", children
           </a>
 
           <a
-            href="https://github.com/Teamclaw-hub/WeCli"
+            href="https://github.com/WeCli/WeCli"
             target="_blank"
             rel="noreferrer"
             className={cn(buttonVariants({ variant: "outline", size: "icon" }), "sm:hidden")}

@@ -1586,7 +1586,7 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
     <a href="/" class="active">Explore</a>
   </nav>
   <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
-    <a href="https://github.com/Teamclaw-hub/WeCli" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--radius);background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:13px;font-weight:500;text-decoration:none;transition:.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text)'">⭐ GitHub</a>
+    <a href="https://github.com/WeCli/WeCli" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--radius);background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:13px;font-weight:500;text-decoration:none;transition:.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text)'">⭐ GitHub</a>
     <button id="magicCopyBtn" onclick="copyMagicPrompt(this)" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--radius);background:linear-gradient(135deg,#238636,#2ea043);border:1px solid rgba(63,185,80,.4);color:#fff;font-size:13px;font-weight:500;cursor:pointer;transition:.2s" onmouseover="this.style.filter='brightness(1.15)'" onmouseout="this.style.filter='none'" title="Copy a magic prompt to guide OpenClaw to download Wecli from GitHub">📋 Copy Magic Prompt</button>
   </div>
   <div class="user-auth" id="userAuthArea">
@@ -1737,7 +1737,7 @@ function closeLoginModal() {
 
 // Magic Prompt — copy to clipboard for user's OpenClaw
 function copyMagicPrompt(btn) {
-  const prompt = 'Clone https://github.com/Teamclaw-hub/WeCli.git, read SKILL.md, and install Wecli.';
+  const prompt = 'Clone https://github.com/WeCli/WeCli.git, read AGENTS.md, and install Wecli.';
   if (!btn) btn = document.getElementById('magicCopyBtn');
   const orig = btn.innerHTML;
   function onSuccess() {

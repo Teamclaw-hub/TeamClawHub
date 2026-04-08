@@ -300,8 +300,8 @@ const translations: Record<string, Record<Locale, string>> = {
 
   // ── Magic Prompt ──
   "main.magicPromptText": {
-    en: "Clone https://github.com/Teamclaw-hub/WeCli.git, read SKILL.md, and install Wecli.",
-    zh: "Clone https://github.com/Teamclaw-hub/WeCli.git，读取 SKILL.md，然后安装 Wecli。",
+    en: "Clone https://github.com/WeCli/WeCli.git, read AGENTS.md, and install Wecli.",
+    zh: "Clone https://github.com/WeCli/WeCli.git，读取 SKILL.md，然后安装 Wecli。",
   },
   "main.magicPromptCopied": { en: "✅ Magic Prompt copied", zh: "✅ Magic Prompt 已复制" },
   "main.magicPromptCopyFail": { en: "❌ Copy failed — please copy manually.", zh: "❌ 复制失败 — 请手动复制。" },

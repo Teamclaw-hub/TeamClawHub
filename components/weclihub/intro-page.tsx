@@ -80,7 +80,7 @@ const INTRO_COPY: Record<Locale, IntroCopy> = {
     eyebrow: "Local-first AI workspace",
     title: "Run AI teams locally. Design workflows visually. Share flows through WecliHub.",
     body:
-      "Wecli combines a local OpenAI-compatible API, a web UI, Teams and expert personas, OASIS orchestration, OASIS Town, living GraphRAG memory, Team Creator, and a Claude-Code-style TeamBot runtime. WecliHub is the flow distribution platform that helps those reusable flows travel.",
+      "Wecli combines a local OpenAI-compatible API, a web UI, Teams and expert personas, OASIS orchestration, OASIS Town, living GraphRAG memory, WeCli Creator, and a Claude-Code-style WeBot runtime. WecliHub is the flow distribution platform that helps those reusable flows travel.",
     bridgeLine: "Discover flows on WecliHub. Run them in Wecli locally.",
     hubLabel: "Flow distribution platform for Wecli",
     loopBody: "Wecli is the runtime and operating model. WecliHub is the distribution surface for reusable flows.",
@@ -92,8 +92,8 @@ const INTRO_COPY: Record<Locale, IntroCopy> = {
       "OASIS workflows",
       "OASIS Town",
       "GraphRAG memory",
-      "Team Creator",
-      "TeamBot subagents"
+      "WeCli Creator",
+      "WeBot subagents"
     ],
     loopTitle: "Two surfaces, one workflow loop",
     loopCards: [
@@ -116,7 +116,7 @@ const INTRO_COPY: Record<Locale, IntroCopy> = {
     installTitle: "Install via any AI coding assistant",
     installBody:
       "README and SKILL.md are written so Codex, Cursor, Claude Code, and similar assistants can set Wecli up with the documented flow instead of a hand-written checklist.",
-    installPrompt: "Clone https://github.com/Teamclaw-hub/WeCli.git, read SKILL.md, and install Wecli.",
+    installPrompt: "Clone https://github.com/WeCli/WeCli.git, read AGENTS.md, and install Wecli.",
     copyPrompt: "Copy install prompt",
     copiedPrompt: "Copied",
     mediaEyebrow: "Media",
@@ -153,12 +153,12 @@ const INTRO_COPY: Record<Locale, IntroCopy> = {
       },
       {
         emoji: "🛠️",
-        title: "Team Creator",
+        title: "WeCli Creator",
         body: "Turn a task description or discovered SOP pages into editable roles, personas, and workflows."
       },
       {
         emoji: "🤖",
-        title: "TeamBot runtime",
+        title: "WeBot runtime",
         body: "Use a Claude-Code-style delegated runtime with profiles, approvals, plans, verifications, and isolated child workspaces."
       }
     ],
@@ -244,14 +244,14 @@ const INTRO_COPY: Record<Locale, IntroCopy> = {
     eyebrow: "本地优先的 AI 工作空间",
     title: "在本地运行 AI 团队，可视化设计工作流，并通过 WecliHub 分发分享。",
     body:
-      "Wecli 把本地 OpenAI 兼容 API、网页 UI、团队与专家 persona、OASIS 编排、OASIS Town、持续演化的 GraphRAG 记忆、Team Creator，以及类 Claude Code 的 TeamBot 运行时放进同一个系统里。WecliHub 则负责这些可复用 flow 的发现、分发与分享。",
+      "Wecli 把本地 OpenAI 兼容 API、网页 UI、团队与专家 persona、OASIS 编排、OASIS Town、持续演化的 GraphRAG 记忆、WeCli Creator，以及类 Claude Code 的 WeBot 运行时放进同一个系统里。WecliHub 则负责这些可复用 flow 的发现、分发与分享。",
     bridgeLine: "在 WecliHub 发现 flow，在 Wecli 本地运行它们。",
     hubLabel: "Wecli 的 flow 分发平台",
     loopBody: "Wecli 是真正执行的运行时与操作模型，WecliHub 则是可复用 flow 的分发与发现表面。",
     primaryCta: "浏览工作流",
     secondaryCta: "获取 Wecli",
     videoCta: "观看演示",
-    trustPills: ["OpenAI 兼容 API", "OASIS 工作流", "OASIS Town", "GraphRAG 记忆", "Team Creator", "TeamBot 子代理"],
+    trustPills: ["OpenAI 兼容 API", "OASIS 工作流", "OASIS Town", "GraphRAG 记忆", "WeCli Creator", "WeBot 子代理"],
     loopTitle: "两个产品表面，一条完整工作流闭环",
     loopCards: [
       {
@@ -273,7 +273,7 @@ const INTRO_COPY: Record<Locale, IntroCopy> = {
     installTitle: "通过任意 AI 编程助手安装",
     installBody:
       "README 和 SKILL.md 已经按 AI agent 可执行的方式组织好了。Codex、Cursor、Claude Code 这类工具可以直接按文档流程完成 Wecli 安装，而不是照着一串手写步骤逐项点点点。",
-    installPrompt: "Clone https://github.com/Teamclaw-hub/WeCli.git，读取 SKILL.md，然后安装 Wecli。",
+    installPrompt: "Clone https://github.com/WeCli/WeCli.git，读取 SKILL.md，然后安装 Wecli。",
     copyPrompt: "复制安装提示词",
     copiedPrompt: "已复制",
     mediaEyebrow: "媒体资产",
@@ -310,12 +310,12 @@ const INTRO_COPY: Record<Locale, IntroCopy> = {
       },
       {
         emoji: "🛠️",
-        title: "Team Creator",
+        title: "WeCli Creator",
         body: "把任务描述或 SOP 页面直接转成可编辑的角色、persona 和 workflow。"
       },
       {
         emoji: "🤖",
-        title: "TeamBot 运行时",
+        title: "WeBot 运行时",
         body: "提供类 Claude Code 的委派式运行时，具备 profile、审批、plan、verification 和隔离子工作区。"
       }
     ],
@@ -489,7 +489,7 @@ export function IntroPage() {
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                   <a
-                    href="https://github.com/Teamclaw-hub/WeCli"
+                    href="https://github.com/WeCli/WeCli"
                     target="_blank"
                     rel="noreferrer"
                     className={buttonVariants({ variant: "outline" })}
@@ -498,7 +498,7 @@ export function IntroPage() {
                     {content.secondaryCta}
                   </a>
                   <a
-                    href="https://youtu.be/amg87hiLRW0"
+                    href="https://youtube.com/shorts/OKuZNwz-CP0"
                     target="_blank"
                     rel="noreferrer"
                     className={buttonVariants({ variant: "ghost" })}
@@ -637,7 +637,7 @@ export function IntroPage() {
             <div className="overflow-hidden rounded-[32px] border border-border/70 bg-background/90 shadow-[0_28px_70px_-42px_rgba(15,23,42,0.5)]">
               <div className="relative aspect-[5/6] w-full">
                 <Image
-                  src="/wecli/poster.png"
+                  src="/wecli/poster.jpg"
                   alt="Wecli poster"
                   fill
                   sizes="(min-width: 1280px) 36rem, (min-width: 768px) 50vw, 100vw"
@@ -791,7 +791,7 @@ export function IntroPage() {
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <a
-                  href="https://github.com/Teamclaw-hub/WeCli"
+                  href="https://github.com/WeCli/WeCli"
                   target="_blank"
                   rel="noreferrer"
                   className={buttonVariants({ variant: "outline" })}
