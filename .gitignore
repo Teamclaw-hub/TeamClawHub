@@ -31,3 +31,4 @@ uploads/
 
 # Local agent instructions
 AGENTS.md
+.claude/settings.local.json
