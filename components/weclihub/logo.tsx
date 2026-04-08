@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
-import { TeamClawMark } from "@/components/teamclawhub/teamclaw-mark";
+import { WecliMark } from "@/components/weclihub/wecli-mark";
 
-export function TeamClawHubLogo({
+export function WecliHubLogo({
   className,
   iconClassName,
   showText = true,
@@ -14,15 +14,15 @@ export function TeamClawHubLogo({
 }) {
   return (
     <span className={cn("inline-flex items-center gap-2 text-2xl font-bold", className)}>
-      <TeamClawMark className={cn("h-9 w-9", iconClassName)} />
+      <WecliMark className={cn("h-9 w-9", iconClassName)} />
       {showText ? (
         <span
           className={cn(
-            "teamclawhub-logo-text",
+            "weclihub-logo-text",
             textClassName
           )}
         >
-          TeamClawHub
+          WecliHub
         </span>
       ) : null}
     </span>

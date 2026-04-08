@@ -10,9 +10,9 @@ import { translateValue, useI18n } from "@/lib/i18n";
 import { buildSnapshotFileName } from "@/lib/snapshot-name";
 import { pickWorkflowTag, pickWorkflowText } from "@/lib/workflow-localization";
 
-import { SiteHeader } from "@/components/teamclawhub/site-header";
-import { StableI18nText } from "@/components/teamclawhub/stable-i18n-text";
-import { WorkflowCard } from "@/components/teamclawhub/workflow-card";
+import { SiteHeader } from "@/components/weclihub/site-header";
+import { StableI18nText } from "@/components/weclihub/stable-i18n-text";
+import { WorkflowCard } from "@/components/weclihub/workflow-card";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -300,7 +300,7 @@ export function MainPage() {
   }
 
   function buildDownloadCommand(workflow: Workflow): string {
-    const origin = typeof window !== "undefined" ? window.location.origin : "https://teamclawhub.com";
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://wecli.net";
     return `curl -L -o "${buildSnapshotFileName(workflow.title || "workflow")}" "${origin}/api/workflows/${workflow.id}/download"`;
   }
 

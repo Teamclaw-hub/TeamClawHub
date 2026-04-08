@@ -5,12 +5,13 @@ import path from "node:path";
 import { PRESET_WORKFLOW_LOCALIZATIONS } from "@/lib/preset-localizations";
 import type { Agent, Expert, Workflow } from "@/lib/types";
 
-export const TEAMCLAWHUB_PORT = 51211;
+export const WECLIHUB_PORT = 51211;
 const IS_VERCEL = process.env.VERCEL === "1";
 const PROJECT_ROOT = process.cwd();
 export const WORKSPACE_ROOT = IS_VERCEL ? PROJECT_ROOT : path.resolve(/* turbopackIgnore: true */ PROJECT_ROOT, "..");
-const TEAMCLAW_ROOT = path.resolve(/* turbopackIgnore: true */ PROJECT_ROOT, "..", "Teamclaw");
-const VERCEL_DATA_ROOT = "/tmp/teamclawhub";
+const WECLI_ROOT = path.resolve(/* turbopackIgnore: true */ PROJECT_ROOT, "..", "WeCli");
+const WECLI_ROOT_ALT = path.resolve(/* turbopackIgnore: true */ PROJECT_ROOT, "..", "wecli");
+const VERCEL_DATA_ROOT = "/tmp/weclihub";
 export const HUB_META_PATH = IS_VERCEL ? path.join(VERCEL_DATA_ROOT, "hub_meta.json") : path.join(PROJECT_ROOT, "hub_meta.json");
 export const STAR_RECORDS_PATH = IS_VERCEL ? path.join(VERCEL_DATA_ROOT, "star_records.json") : path.join(PROJECT_ROOT, "star_records.json");
 
@@ -20,9 +21,11 @@ function resolveSharedPath(...segments: string[]): string {
     return primary;
   }
 
-  const siblingTeamclaw = path.join(TEAMCLAW_ROOT, ...segments);
-  if (fs.existsSync(siblingTeamclaw)) {
-    return siblingTeamclaw;
+  for (const base of [WECLI_ROOT, WECLI_ROOT_ALT]) {
+    const candidate = path.join(base, ...segments);
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
   }
 
   return primary;
@@ -38,7 +41,7 @@ export const GITHUB_REDIRECT_URI = process.env.GITHUB_REDIRECT_URI ?? "";
 export const SESSION_SECRET =
   process.env.SESSION_SECRET ??
   process.env.FLASK_SECRET_KEY ??
-  crypto.createHash("sha256").update("teamclawhub-default-secret-key").digest("hex");
+  crypto.createHash("sha256").update("weclihub-default-secret-key").digest("hex");
 
 export const TAG_EMOJI: Record<string, string> = {
   creative: "🎨",
@@ -126,7 +129,7 @@ function buildLocalSnapshotWorkflow(options: {
     id: options.id,
     title: options.title,
     description: options.description,
-    author: options.author ?? "TeamClawHub Team",
+    author: options.author ?? "WecliHub Team",
     tags: options.tags,
     category: options.category,
     stars: 0,
@@ -150,7 +153,7 @@ export const PRESET_WORKFLOW_DEFINITIONS: Array<Workflow | null> = [
     title: "ML Code Testing Pipeline",
     description:
       "Automated machine learning code testing workflow with parallel agents analyzing why this pipeline is optimal for ML testing scenarios.",
-author: "TeamClawHub Team",
+author: "WecliHub Team",
     tags: ["ml", "code", "pipeline"],
     category: "Engineering",
     stars: 128,
@@ -183,7 +186,7 @@ edges:
     id: "brainstorm_trio",
     title: "Creative Brainstorm Trio",
     description: "Three perspectives brainstorm in parallel, one reviewer filters the ideas, and a synthesis advisor produces a clear recommendation.",
-author: "TeamClawHub Team",
+author: "WecliHub Team",
     tags: ["brainstorm", "creative", "ideation"],
     category: "Ideation",
     stars: 96,
@@ -220,7 +223,7 @@ edges:
     id: "code_review_pipeline",
     title: "Code Review Pipeline",
     description: "Bug and performance review happen in parallel, then a synthesis advisor combines them into one prioritized code review report.",
-author: "TeamClawHub Team",
+author: "WecliHub Team",
     tags: ["code", "review", "pipeline"],
     category: "Engineering",
     stars: 203,
@@ -249,7 +252,7 @@ edges:
     id: "business_debate",
     title: "Business Strategy Debate",
     description: "Economist, lawyer, and entrepreneur debate business strategy from different angles.",
-author: "TeamClawHub Team",
+author: "WecliHub Team",
     tags: ["debate", "brainstorm"],
     category: "Business",
     stars: 75,
@@ -292,7 +295,7 @@ edges:
     id: "dag_research_pipeline",
     title: "Research Analysis DAG",
     description: "DAG-based research pipeline with parallel data collection and sequential analysis.",
-author: "TeamClawHub Team",
+author: "WecliHub Team",
     tags: ["pipeline", "data"],
     category: "Research",
     stars: 64,
@@ -329,7 +332,7 @@ edges:
     id: "multi_agent_team",
     title: "Release Readiness Team",
     description: "An end-to-end release workflow that combines internal experts, OpenClaw builders, and connected agents for validation and rollout.",
-author: "TeamClawHub Team",
+author: "WecliHub Team",
     tags: ["team", "snapshot", "openclaw", "release", "delivery"],
     category: "Engineering",
     stars: 156,

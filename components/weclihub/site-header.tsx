@@ -4,10 +4,10 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { Github } from "lucide-react";
 
-import { LanguageToggle } from "@/components/teamclawhub/language-toggle";
-import { TeamClawHubLogo } from "@/components/teamclawhub/logo";
-import { StableI18nText } from "@/components/teamclawhub/stable-i18n-text";
-import { ThemeToggle } from "@/components/teamclawhub/theme-toggle";
+import { LanguageToggle } from "@/components/weclihub/language-toggle";
+import { WecliHubLogo } from "@/components/weclihub/logo";
+import { StableI18nText } from "@/components/weclihub/stable-i18n-text";
+import { ThemeToggle } from "@/components/weclihub/theme-toggle";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -24,12 +24,12 @@ function navLinkClass(active: boolean) {
   );
 }
 
-export function SiteHeader({ activePage, repoLabelKey = "header.teamclaw", children }: SiteHeaderProps) {
+export function SiteHeader({ activePage, repoLabelKey = "header.wecli", children }: SiteHeaderProps) {
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/90 backdrop-blur">
       <div className="container flex h-16 items-center gap-3">
         <Link href="/" className="text-xl font-bold text-primary">
-          <TeamClawHubLogo />
+          <WecliHubLogo />
         </Link>
 
         <nav className="hidden md:block">
@@ -55,7 +55,7 @@ export function SiteHeader({ activePage, repoLabelKey = "header.teamclaw", child
           <LanguageToggle />
 
           <a
-            href="https://github.com/Teamclaw-hub/TeamClaw.git"
+            href="https://github.com/Teamclaw-hub/WeCli"
             target="_blank"
             rel="noreferrer"
             className={cn(buttonVariants({ variant: "outline" }), "hidden sm:inline-flex")}
@@ -65,12 +65,12 @@ export function SiteHeader({ activePage, repoLabelKey = "header.teamclaw", child
           </a>
 
           <a
-            href="https://github.com/Teamclaw-hub/TeamClaw.git"
+            href="https://github.com/Teamclaw-hub/WeCli"
             target="_blank"
             rel="noreferrer"
             className={cn(buttonVariants({ variant: "outline", size: "icon" }), "sm:hidden")}
-            aria-label="TeamClaw GitHub"
-            title="TeamClaw GitHub"
+            aria-label="Wecli GitHub"
+            title="Wecli GitHub"
           >
             <Github className="h-4 w-4" />
           </a>

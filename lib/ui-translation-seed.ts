@@ -44,7 +44,7 @@ export const UI_TRANSLATION_SEED: Record<string, string> = {
   "login.signInGithub": "Sign in with GitHub",
   "login.continueGuest": "Continue as Guest",
   "settings.title": "Settings",
-  "settings.description": "Customize your TeamClawHub preferences",
+  "settings.description": "Customize your WecliHub preferences",
   "settings.language": "Language",
   "settings.english": "English",
   "settings.chinese": "Chinese",

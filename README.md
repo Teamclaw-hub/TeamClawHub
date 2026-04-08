@@ -1,10 +1,10 @@
-# 🌊 TeamClawHub
+# 🌊 WecliHub
 
-**A community marketplace for discovering, sharing, and distributing multi-agent OASIS workflows — built for [TeamClaw](https://github.com/Teamclaw-hub/TeamClaw.git).**
+**A community marketplace for discovering, sharing, and distributing multi-agent OASIS workflows — built for [Wecli](https://github.com/Teamclaw-hub/WeCli).**
 
-TeamClawHub is where TeamClaw teams publish their workflow templates so others can browse, star, download, and remix them. Think of it as a "workflow app store" for multi-agent orchestration.
+WecliHub is where Wecli teams publish their workflow templates so others can browse, star, download, and remix them. Think of it as a "workflow app store" for multi-agent orchestration.
 
-> **Live site**: [teamclawhub.com](https://teamclawhub.com)
+> **Live site**: [wecli.net](https://wecli.net/)
 
 ---
 
@@ -36,16 +36,16 @@ TeamClawHub is where TeamClaw teams publish their workflow templates so others c
 ### 🖥️ CLI-Friendly API
 ```bash
 # List all workflows (JSON)
-curl https://teamclawhub.com/api/cli/workflows
+curl https://wecli.net/api/cli/workflows
 
 # Pretty-printed table for terminal
-curl -H 'Accept: text/plain' https://teamclawhub.com/api/cli/workflows
+curl -H 'Accept: text/plain' https://wecli.net/api/cli/workflows
 
 # Search by keyword
-curl 'https://teamclawhub.com/api/cli/workflows?search=creative'
+curl 'https://wecli.net/api/cli/workflows?search=creative'
 
 # Download a workflow as ZIP
-curl -L -o workflow.zip https://teamclawhub.com/api/workflows/<id>/download
+curl -L -o workflow.zip https://wecli.net/api/workflows/<id>/download
 ```
 
 ---
@@ -113,7 +113,7 @@ npm run start      # → http://localhost:51211
 ## 📐 Project Structure
 
 ```
-TeamClawHub/
+WecliHub/
 ├── app/                          # Next.js App Router
 │   ├── layout.tsx                # Root layout (I18nProvider)
 │   ├── page.tsx                  # Home → <MainPage />
@@ -130,11 +130,11 @@ TeamClawHub/
 │   ├── profile/[login]/          # User profile page
 │   └── workflow/[workflowId]/    # Workflow detail page
 ├── components/
-│   ├── teamclawhub/
+│   ├── weclihub/
 │   │   ├── main-page.tsx         # Home page (search, filter, publish)
 │   │   ├── profile-page.tsx      # Profile (CRUD, stars, settings)
 │   │   ├── workflow-detail-page.tsx  # Detail (diagram, agents, YAML)
-│   │   └── logo.tsx              # TeamClawHub logo
+│   │   └── logo.tsx              # WecliHub logo
 │   └── ui/                       # shadcn/ui primitives
 ├── lib/
 │   ├── workflow-store.ts         # Core data layer (JSON read/write)
@@ -193,7 +193,7 @@ TeamClawHub/
 
 ## 🔐 Authentication
 
-TeamClawHub uses **GitHub OAuth 2.0** for authentication:
+WecliHub uses **GitHub OAuth 2.0** for authentication:
 
 1. User clicks "Sign in with GitHub" → redirected to GitHub authorization page
 2. GitHub calls back with an authorization code
@@ -208,7 +208,7 @@ TeamClawHub uses **GitHub OAuth 2.0** for authentication:
 
 ## 🗄️ Data Model
 
-TeamClawHub uses a **lightweight JSON file store** (no external database):
+WecliHub uses a **lightweight JSON file store** (no external database):
 
 - **`hub_meta.json`** — All community-published workflows
 - **`star_records.json`** — User star records
@@ -225,18 +225,18 @@ TeamClawHub uses a **lightweight JSON file store** (no external database):
 
 ---
 
-## 🤝 Relation to TeamClaw
+## 🤝 Relation to Wecli
 
-TeamClawHub is a companion project to [TeamClaw](https://github.com/Teamclaw-hub/TeamClaw.git) — a multi-agent collaboration framework. The relationship:
+WecliHub is a companion project to [Wecli](https://github.com/Teamclaw-hub/WeCli) — a multi-agent collaboration framework. The relationship:
 
-- **TeamClaw** → The runtime engine. Creates teams of AI agents that collaborate through OASIS workflows.
-- **TeamClawHub** → The distribution hub. Lets users share and discover workflow templates that run on TeamClaw.
+- **Wecli** → The runtime engine. Creates teams of AI agents that collaborate through OASIS workflows.
+- **WecliHub** → The distribution hub. Lets users share and discover workflow templates that run on Wecli.
 
 A typical workflow:
-1. Design a multi-agent workflow in TeamClaw
+1. Design a multi-agent workflow in Wecli
 2. Export it as a Team Snapshot ZIP (agents + workflow YAML + skills)
-3. Publish to TeamClawHub for the community
-4. Others browse TeamClawHub, download the ZIP, and import into their TeamClaw instance
+3. Publish to WecliHub for the community
+4. Others browse WecliHub, download the ZIP, and import into their Wecli instance
 
 ---
 
@@ -247,5 +247,5 @@ Apache License 2.0
 ---
 
 <p align="center">
-  Built with ❤️ for the TeamClaw community
+  Built with ❤️ for the Wecli community
 </p>

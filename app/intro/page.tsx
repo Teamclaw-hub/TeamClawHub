@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
 
-import { IntroPage } from "@/components/teamclawhub/intro-page";
+import { IntroPage } from "@/components/weclihub/intro-page";
 
 export const metadata: Metadata = {
-  title: "TeamClaw — Local AI Workspace | TeamClawHub",
+  title: "Wecli — Local AI Workspace | WecliHub",
   description:
-    "Meet TeamClaw: a local-first AI workspace with OASIS workflows, OASIS Town, GraphRAG memory, Team Creator, and TeamClawHub as the flow distribution layer.",
+    "Meet Wecli: a local-first AI workspace with OASIS workflows, OASIS Town, GraphRAG memory, Team Creator, and WecliHub as the flow distribution layer.",
   alternates: {
     canonical: "/intro"
   },
   openGraph: {
-    url: "https://teamclawhub.com/intro",
-    title: "TeamClaw — Local AI Workspace | TeamClawHub",
+    url: "https://wecli.net/intro",
+    title: "Wecli — Local AI Workspace | WecliHub",
     description:
-      "Run AI teams locally, design workflows visually, and share reusable flows through TeamClawHub."
+      "Run AI teams locally, design workflows visually, and share reusable flows through WecliHub."
   }
 };
 

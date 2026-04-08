@@ -5,8 +5,8 @@ import Link from "next/link";
 import { ArrowRight, Copy, Github } from "lucide-react";
 import { useState } from "react";
 
-import { PretextText } from "@/components/teamclawhub/pretext-text";
-import { SiteHeader } from "@/components/teamclawhub/site-header";
+import { PretextText } from "@/components/weclihub/pretext-text";
+import { SiteHeader } from "@/components/weclihub/site-header";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -78,14 +78,14 @@ type IntroCopy = {
 const INTRO_COPY: Record<Locale, IntroCopy> = {
   en: {
     eyebrow: "Local-first AI workspace",
-    title: "Run AI teams locally. Design workflows visually. Share flows through TeamClawHub.",
+    title: "Run AI teams locally. Design workflows visually. Share flows through WecliHub.",
     body:
-      "TeamClaw combines a local OpenAI-compatible API, a web UI, Teams and expert personas, OASIS orchestration, OASIS Town, living GraphRAG memory, Team Creator, and a Claude-Code-style TeamBot runtime. TeamClawHub is the flow distribution platform that helps those reusable flows travel.",
-    bridgeLine: "Discover flows on TeamClawHub. Run them in TeamClaw locally.",
-    hubLabel: "Flow distribution platform for TeamClaw",
-    loopBody: "TeamClaw is the runtime and operating model. TeamClawHub is the distribution surface for reusable flows.",
+      "Wecli combines a local OpenAI-compatible API, a web UI, Teams and expert personas, OASIS orchestration, OASIS Town, living GraphRAG memory, Team Creator, and a Claude-Code-style TeamBot runtime. WecliHub is the flow distribution platform that helps those reusable flows travel.",
+    bridgeLine: "Discover flows on WecliHub. Run them in Wecli locally.",
+    hubLabel: "Flow distribution platform for Wecli",
+    loopBody: "Wecli is the runtime and operating model. WecliHub is the distribution surface for reusable flows.",
     primaryCta: "Explore Workflows",
-    secondaryCta: "Get TeamClaw",
+    secondaryCta: "Get Wecli",
     videoCta: "Watch Demo",
     trustPills: [
       "OpenAI-compatible API",
@@ -99,35 +99,35 @@ const INTRO_COPY: Record<Locale, IntroCopy> = {
     loopCards: [
       {
         emoji: "🧩",
-        title: "TeamClaw runtime",
+        title: "Wecli runtime",
         body: "Local workspace, Teams, personas, orchestration, memory, bots, and operator tooling."
       },
       {
         emoji: "📦",
-        title: "TeamClawHub distribution",
-        body: "Browse, publish, and share reusable TeamClaw flows as portable workflow artifacts."
+        title: "WecliHub distribution",
+        body: "Browse, publish, and share reusable Wecli flows as portable workflow artifacts."
       },
       {
         emoji: "🔁",
         title: "One connected loop",
-        body: "Build and run locally in TeamClaw, then package and distribute flows through the Hub."
+        body: "Build and run locally in Wecli, then package and distribute flows through the Hub."
       }
     ],
     installTitle: "Install via any AI coding assistant",
     installBody:
-      "README and SKILL.md are written so Codex, Cursor, Claude Code, and similar assistants can set TeamClaw up with the documented flow instead of a hand-written checklist.",
-    installPrompt: "Clone https://github.com/Teamclaw-hub/TeamClaw.git, read SKILL.md, and install TeamClaw.",
+      "README and SKILL.md are written so Codex, Cursor, Claude Code, and similar assistants can set Wecli up with the documented flow instead of a hand-written checklist.",
+    installPrompt: "Clone https://github.com/Teamclaw-hub/WeCli.git, read SKILL.md, and install Wecli.",
     copyPrompt: "Copy install prompt",
     copiedPrompt: "Copied",
     mediaEyebrow: "Media",
     mediaTitle: "See the real product surfaces",
-    mediaBody: "These are the actual TeamClaw media assets from the main repository: the demo video and the README poster.",
-    videoCardTitle: "TeamClaw demo video",
+    mediaBody: "These are the actual Wecli media assets from the main repository: the demo video and the README poster.",
+    videoCardTitle: "Wecli demo video",
     videoCardBody: "A quick product walkthrough showing the runtime, UI, and orchestration story in motion.",
     posterCardTitle: "README poster",
-    posterCardBody: "The core visual from the TeamClaw README, carried directly into TeamClawHub for consistent product storytelling.",
+    posterCardBody: "The core visual from the Wecli README, carried directly into WecliHub for consistent product storytelling.",
     featureEyebrow: "Core product",
-    featureTitle: "Why TeamClaw feels different",
+    featureTitle: "Why Wecli feels different",
     featureBody:
       "The differentiation is not one isolated feature. It is the combination of local control, visual orchestration, live observability, sharable Team artifacts, and an agent-friendly operating model.",
     featureCards: [
@@ -164,17 +164,17 @@ const INTRO_COPY: Record<Locale, IntroCopy> = {
     ],
     evidenceEyebrow: "Evidence",
     evidenceTitle: "Real product surfaces, not a marketing wishlist",
-    evidenceBody: "These capabilities already exist in the TeamClaw repository today.",
+    evidenceBody: "These capabilities already exist in the Wecli repository today.",
     evidenceCards: [
       {
         emoji: "🖥️",
         title: "OpenAI-compatible local API",
-        body: "Expose a local /v1/chat/completions endpoint so standard clients and tools can talk to TeamClaw."
+        body: "Expose a local /v1/chat/completions endpoint so standard clients and tools can talk to Wecli."
       },
       {
         emoji: "📡",
         title: "Bots, voice, and remote access",
-        body: "Telegram, QQ, TTS/STT, login tokens, and Cloudflare Tunnel push TeamClaw beyond a desktop-only tool."
+        body: "Telegram, QQ, TTS/STT, login tokens, and Cloudflare Tunnel push Wecli beyond a desktop-only tool."
       },
       {
         emoji: "📈",
@@ -203,7 +203,7 @@ const INTRO_COPY: Record<Locale, IntroCopy> = {
       {
         number: "03",
         title: "Browse, build, and share flows",
-        body: "Discover flows on TeamClawHub, then import, adapt, or recreate them inside TeamClaw."
+        body: "Discover flows on WecliHub, then import, adapt, or recreate them inside Wecli."
       }
     ],
     audienceEyebrow: "Audience",
@@ -222,7 +222,7 @@ const INTRO_COPY: Record<Locale, IntroCopy> = {
       {
         emoji: "🧑‍💻",
         title: "AI coding assistants",
-        body: "TeamClaw is documented so coding agents can install, operate, and extend it with progressive disclosure."
+        body: "Wecli is documented so coding agents can install, operate, and extend it with progressive disclosure."
       }
     ],
     guardrailsEyebrow: "Guardrails",
@@ -234,57 +234,57 @@ const INTRO_COPY: Record<Locale, IntroCopy> = {
       "Remote access still requires login even when localhost can be passwordless."
     ],
     footerEyebrow: "Call to action",
-    footerTitle: "Start on the Hub. Run it locally in TeamClaw.",
+    footerTitle: "Start on the Hub. Run it locally in Wecli.",
     footerBody:
-      "TeamClawHub is where flows are discovered and distributed. TeamClaw is where the runtime, teams, orchestration, and memory actually execute.",
-    footerPrimaryCta: "Browse TeamClawHub",
-    footerSecondaryCta: "Open TeamClaw GitHub"
+      "WecliHub is where flows are discovered and distributed. Wecli is where the runtime, teams, orchestration, and memory actually execute.",
+    footerPrimaryCta: "Browse WecliHub",
+    footerSecondaryCta: "Open Wecli GitHub"
   },
   zh: {
     eyebrow: "本地优先的 AI 工作空间",
-    title: "在本地运行 AI 团队，可视化设计工作流，并通过 TeamClawHub 分发分享。",
+    title: "在本地运行 AI 团队，可视化设计工作流，并通过 WecliHub 分发分享。",
     body:
-      "TeamClaw 把本地 OpenAI 兼容 API、网页 UI、团队与专家 persona、OASIS 编排、OASIS Town、持续演化的 GraphRAG 记忆、Team Creator，以及类 Claude Code 的 TeamBot 运行时放进同一个系统里。TeamClawHub 则负责这些可复用 flow 的发现、分发与分享。",
-    bridgeLine: "在 TeamClawHub 发现 flow，在 TeamClaw 本地运行它们。",
-    hubLabel: "TeamClaw 的 flow 分发平台",
-    loopBody: "TeamClaw 是真正执行的运行时与操作模型，TeamClawHub 则是可复用 flow 的分发与发现表面。",
+      "Wecli 把本地 OpenAI 兼容 API、网页 UI、团队与专家 persona、OASIS 编排、OASIS Town、持续演化的 GraphRAG 记忆、Team Creator，以及类 Claude Code 的 TeamBot 运行时放进同一个系统里。WecliHub 则负责这些可复用 flow 的发现、分发与分享。",
+    bridgeLine: "在 WecliHub 发现 flow，在 Wecli 本地运行它们。",
+    hubLabel: "Wecli 的 flow 分发平台",
+    loopBody: "Wecli 是真正执行的运行时与操作模型，WecliHub 则是可复用 flow 的分发与发现表面。",
     primaryCta: "浏览工作流",
-    secondaryCta: "获取 TeamClaw",
+    secondaryCta: "获取 Wecli",
     videoCta: "观看演示",
     trustPills: ["OpenAI 兼容 API", "OASIS 工作流", "OASIS Town", "GraphRAG 记忆", "Team Creator", "TeamBot 子代理"],
     loopTitle: "两个产品表面，一条完整工作流闭环",
     loopCards: [
       {
         emoji: "🧩",
-        title: "TeamClaw 运行时",
+        title: "Wecli 运行时",
         body: "负责本地工作空间、Teams、persona、编排、记忆、机器人和操作台能力。"
       },
       {
         emoji: "📦",
-        title: "TeamClawHub 分发层",
-        body: "负责浏览、发布、分享可复用的 TeamClaw flow，把工作流做成可携带的资产。"
+        title: "WecliHub 分发层",
+        body: "负责浏览、发布、分享可复用的 Wecli flow，把工作流做成可携带的资产。"
       },
       {
         emoji: "🔁",
         title: "同一条闭环",
-        body: "先在 TeamClaw 本地构建与运行，再通过 Hub 打包和分发 flow。"
+        body: "先在 Wecli 本地构建与运行，再通过 Hub 打包和分发 flow。"
       }
     ],
     installTitle: "通过任意 AI 编程助手安装",
     installBody:
-      "README 和 SKILL.md 已经按 AI agent 可执行的方式组织好了。Codex、Cursor、Claude Code 这类工具可以直接按文档流程完成 TeamClaw 安装，而不是照着一串手写步骤逐项点点点。",
-    installPrompt: "Clone https://github.com/Teamclaw-hub/TeamClaw.git，读取 SKILL.md，然后安装 TeamClaw。",
+      "README 和 SKILL.md 已经按 AI agent 可执行的方式组织好了。Codex、Cursor、Claude Code 这类工具可以直接按文档流程完成 Wecli 安装，而不是照着一串手写步骤逐项点点点。",
+    installPrompt: "Clone https://github.com/Teamclaw-hub/WeCli.git，读取 SKILL.md，然后安装 Wecli。",
     copyPrompt: "复制安装提示词",
     copiedPrompt: "已复制",
     mediaEyebrow: "媒体资产",
     mediaTitle: "直接展示真实产品物料",
-    mediaBody: "下面使用的就是 TeamClaw 主仓库里的真实媒体资产：演示视频和 README 海报。",
-    videoCardTitle: "TeamClaw 演示视频",
+    mediaBody: "下面使用的就是 Wecli 主仓库里的真实媒体资产：演示视频和 README 海报。",
+    videoCardTitle: "Wecli 演示视频",
     videoCardBody: "用一段实际演示快速说明运行时、UI 和编排能力是如何联动工作的。",
     posterCardTitle: "README 海报",
-    posterCardBody: "直接延续 TeamClaw README 的核心视觉，让 TeamClawHub 的宣传页和主仓库叙事保持一致。",
+    posterCardBody: "直接延续 Wecli README 的核心视觉，让 WecliHub 的宣传页和主仓库叙事保持一致。",
     featureEyebrow: "核心产品",
-    featureTitle: "为什么 TeamClaw 不一样",
+    featureTitle: "为什么 Wecli 不一样",
     featureBody:
       "它的差异不在某一个孤立功能，而在于本地控制、可视化编排、实时可观测性、可分享的 Team 资产，以及 agent-friendly 的操作模型被放进了同一个系统。",
     featureCards: [
@@ -321,12 +321,12 @@ const INTRO_COPY: Record<Locale, IntroCopy> = {
     ],
     evidenceEyebrow: "真实能力",
     evidenceTitle: "不是营销空话，而是真实的产品表面",
-    evidenceBody: "下面这些能力都已经在 TeamClaw 仓库中落地存在。",
+    evidenceBody: "下面这些能力都已经在 Wecli 仓库中落地存在。",
     evidenceCards: [
       {
         emoji: "🖥️",
         title: "本地 OpenAI 兼容 API",
-        body: "暴露本地 /v1/chat/completions，让标准客户端和工具直接接入 TeamClaw。"
+        body: "暴露本地 /v1/chat/completions，让标准客户端和工具直接接入 Wecli。"
       },
       {
         emoji: "📡",
@@ -360,7 +360,7 @@ const INTRO_COPY: Record<Locale, IntroCopy> = {
       {
         number: "03",
         title: "浏览、构建并分发 flow",
-        body: "先在 TeamClawHub 发现 flow，再把它们导入、改造或在 TeamClaw 里重新生成运行。"
+        body: "先在 WecliHub 发现 flow，再把它们导入、改造或在 Wecli 里重新生成运行。"
       }
     ],
     audienceEyebrow: "适用人群",
@@ -379,7 +379,7 @@ const INTRO_COPY: Record<Locale, IntroCopy> = {
       {
         emoji: "🧑‍💻",
         title: "AI 编程助手",
-        body: "TeamClaw 的文档采用 progressive disclosure，方便编码代理安装、运维和继续扩展。"
+        body: "Wecli 的文档采用 progressive disclosure，方便编码代理安装、运维和继续扩展。"
       }
     ],
     guardrailsEyebrow: "真实约束",
@@ -391,11 +391,11 @@ const INTRO_COPY: Record<Locale, IntroCopy> = {
       "即使 localhost 可以免密，远程访问仍然需要登录。"
     ],
     footerEyebrow: "行动入口",
-    footerTitle: "从 Hub 开始，在 TeamClaw 本地运行。",
+    footerTitle: "从 Hub 开始，在 Wecli 本地运行。",
     footerBody:
-      "TeamClawHub 负责 flow 的发现与分发，TeamClaw 负责真正的运行时、团队、编排与记忆执行。两者是一条完整闭环，不是同一个产品表面。",
-    footerPrimaryCta: "浏览 TeamClawHub",
-    footerSecondaryCta: "打开 TeamClaw GitHub"
+      "WecliHub 负责 flow 的发现与分发，Wecli 负责真正的运行时、团队、编排与记忆执行。两者是一条完整闭环，不是同一个产品表面。",
+    footerPrimaryCta: "浏览 WecliHub",
+    footerSecondaryCta: "打开 Wecli GitHub"
   }
 };
 
@@ -489,7 +489,7 @@ export function IntroPage() {
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                   <a
-                    href="https://github.com/Teamclaw-hub/TeamClaw.git"
+                    href="https://github.com/Teamclaw-hub/WeCli"
                     target="_blank"
                     rel="noreferrer"
                     className={buttonVariants({ variant: "outline" })}
@@ -526,7 +526,7 @@ export function IntroPage() {
                     <div className="intro-logo-badge rounded-3xl border border-primary/15 p-3 shadow-sm">
                       <Image
                         src="/icon.svg"
-                        alt="TeamClawHub icon"
+                        alt="WecliHub icon"
                         width={80}
                         height={80}
                         className="h-14 w-14 sm:h-16 sm:w-16"
@@ -622,10 +622,10 @@ export function IntroPage() {
                 <video
                   controls
                   preload="metadata"
-                  poster="/teamclaw/teamclaw-demo-poster.jpg"
+                  poster="/wecli/wecli-demo-poster.jpg"
                   className="h-full w-full object-cover"
                 >
-                  <source src="/teamclaw/teamclaw-demo.mp4" type="video/mp4" />
+                  <source src="/wecli/wecli-demo.mp4" type="video/mp4" />
                 </video>
               </div>
               <div className="p-6">
@@ -637,8 +637,8 @@ export function IntroPage() {
             <div className="overflow-hidden rounded-[32px] border border-border/70 bg-background/90 shadow-[0_28px_70px_-42px_rgba(15,23,42,0.5)]">
               <div className="relative aspect-[5/6] w-full">
                 <Image
-                  src="/teamclaw/poster.png"
-                  alt="TeamClaw poster"
+                  src="/wecli/poster.png"
+                  alt="Wecli poster"
                   fill
                   sizes="(min-width: 1280px) 36rem, (min-width: 768px) 50vw, 100vw"
                   className="object-cover object-top"
@@ -791,7 +791,7 @@ export function IntroPage() {
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <a
-                  href="https://github.com/Teamclaw-hub/TeamClaw.git"
+                  href="https://github.com/Teamclaw-hub/WeCli"
                   target="_blank"
                   rel="noreferrer"
                   className={buttonVariants({ variant: "outline" })}

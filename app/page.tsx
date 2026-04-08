@@ -1,4 +1,4 @@
-import { MainPage } from "@/components/teamclawhub/main-page";
+import { MainPage } from "@/components/weclihub/main-page";
 
 export default function Page() {
   return <MainPage />;

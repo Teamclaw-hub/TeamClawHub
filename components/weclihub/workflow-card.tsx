@@ -7,7 +7,7 @@ import type { SupportedLocale, Workflow } from "@/lib/types";
 import { translateValue } from "@/lib/i18n";
 import { pickWorkflowTag, pickWorkflowText } from "@/lib/workflow-localization";
 
-import { PretextText } from "@/components/teamclawhub/pretext-text";
+import { PretextText } from "@/components/weclihub/pretext-text";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 

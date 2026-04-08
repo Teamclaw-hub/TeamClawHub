@@ -3,8 +3,8 @@
 import { ArrowLeft, Copy, Download, Github, LogOut, Star, UserRound } from "lucide-react";
 import yaml from "js-yaml";
 
-import { SiteHeader } from "@/components/teamclawhub/site-header";
-import { StableI18nText } from "@/components/teamclawhub/stable-i18n-text";
+import { SiteHeader } from "@/components/weclihub/site-header";
+import { StableI18nText } from "@/components/weclihub/stable-i18n-text";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -1663,7 +1663,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
 
     return { oasis: oasisAgents, openclaw: openclawAgents, external: externalAgentsList, custom: customAgentsList };
   }, [workflow, internalAgents, externalAgents]);
-  const curlDownloadUrl = `${siteOrigin || "https://teamclawhub.com"}/api/workflows/${workflowId}/download`;
+  const curlDownloadUrl = `${siteOrigin || "https://wecli.net"}/api/workflows/${workflowId}/download`;
   const curlDownloadCommand = `curl -L -o "${buildSnapshotFileName(workflow?.title || "workflow")}" "${curlDownloadUrl}"`;
   const localizeWorkflowText = useCallback(
     (field: "title" | "description" | "detail" | "category", fallback: string): string => {

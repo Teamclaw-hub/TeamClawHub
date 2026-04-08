@@ -2,12 +2,12 @@ import { useId } from "react";
 
 import { cn } from "@/lib/utils";
 
-export function TeamClawMark({ className }: { className?: string }) {
+export function WecliMark({ className }: { className?: string }) {
   const id = useId().replace(/:/g, "");
-  const bladeId = `${id}-teamclawBlade`;
-  const nodeId = `${id}-teamclawNode`;
-  const orbitId = `${id}-teamclawOrbit`;
-  const shadowId = `${id}-teamclawShadow`;
+  const bladeId = `${id}-wecliBlade`;
+  const nodeId = `${id}-wecliNode`;
+  const orbitId = `${id}-wecliOrbit`;
+  const shadowId = `${id}-wecliShadow`;
 
   return (
     <svg
