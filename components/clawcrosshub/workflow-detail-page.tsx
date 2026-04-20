@@ -174,6 +174,7 @@ type EngineLayout = {
 };
 
 type AgentLocalizationScopes = Array<"experts" | "internal_agents" | "external_agents">;
+type CodeViewType = "yaml" | "python";
 
 const GENERIC_AGENT_TAGS = new Set(["openclaw", "external", "custom", "selector", "selector_agent", "agent", "manual", "all_experts"]);
 
@@ -908,7 +909,7 @@ function asNumber(value: unknown, fallback: number): number {
 }
 
 function toShortLabel(value: string, maxLen = 28): string {
-  return value.length > maxLen ? `${value.slice(0, maxLen - 1)}…` : value;
+  return value.length > maxLen ? `${value.slice(0, maxLen - 1)}...` : value;
 }
 
 function buildGraphLayoutFromEngine(raw: unknown, labels: { selector: string }): GraphLayout | null {
@@ -1167,6 +1168,8 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
   const [loginOpen, setLoginOpen] = useState(false);
   const [starred, setStarred] = useState(false);
   const [selectedYamlFile, setSelectedYamlFile] = useState<string | null>(null);
+  const [selectedPythonFile, setSelectedPythonFile] = useState<string | null>(null);
+  const [selectedCodeType, setSelectedCodeType] = useState<CodeViewType>("yaml");
 
 
   useEffect(() => {
@@ -1293,12 +1296,12 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
     }
   }
 
-  async function copyYaml() {
-    const ok = await copyToClipboard(activeYamlContent);
+  async function copyCodeBlock() {
+    const ok = await copyToClipboard(activeCodeContent);
     if (ok) {
-      window.alert(t("detail.yamlCopied"));
+      window.alert(selectedCodeType === "python" ? "Python copied." : t("detail.yamlCopied"));
     } else {
-      window.alert(t("detail.yamlCopyFail"));
+      window.alert(selectedCodeType === "python" ? "Failed to copy Python." : t("detail.yamlCopyFail"));
     }
   }
 
@@ -1337,13 +1340,11 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
     }
   }
 
-  // ══════════════════════════════════════════════════════════════════
-  // ── Flow canvas pan/zoom engine (matches Flask initFlowCanvas) ──
+  // Flow canvas pan/zoom engine (matches Flask initFlowCanvas)
   // Uses a ref-callback so the engine initializes the instant React
-  // mounts the .flow-graph container — no timing / stale-ref issues.
+  // mounts the .flow-graph container with no timing / stale-ref issues.
   // All pan/zoom state lives in a plain JS object (like Flask's fgState)
-  // and we manipulate the DOM directly — zero React re-renders.
-  // ══════════════════════════════════════════════════════════════════
+  // and we manipulate the DOM directly with zero React re-renders.
   const initFlowCanvas = useCallback((container: HTMLDivElement | null) => {
     // Cleanup previous engine if any
     if (canvasCleanupRef.current) {
@@ -1355,10 +1356,10 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
     (graphRef as React.MutableRefObject<HTMLDivElement | null>).current = container;
     if (!container) return;
 
-    // ── Shared mutable state (never triggers React re-render) ──
+    // Shared mutable state (never triggers React re-render)
     const fgState = { zoom: 1, panX: 0, panY: 0, panning: null as null | { startX: number; startY: number; origPanX: number; origPanY: number } };
 
-    // ── Apply current transform to DOM directly ──
+    // Apply current transform to DOM directly
     function fgApplyTransform() {
       const inner = container!.querySelector(".flow-graph-inner") as HTMLElement | null;
       if (inner) {
@@ -1368,7 +1369,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
       if (label) label.textContent = Math.round(fgState.zoom * 100) + "%";
     }
 
-    // ── Auto-fit: scale graph to fit container ──
+    // Auto-fit: scale graph to fit container
     function autoFit() {
       const inner = container!.querySelector(".flow-graph-inner") as HTMLElement | null;
       if (!inner) return;
@@ -1392,7 +1393,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
     // Initial auto-fit (double-rAF so the inner element has its final size)
     requestAnimationFrame(() => requestAnimationFrame(autoFit));
 
-    // ── Mouse wheel → zoom (centered on cursor) ──
+    // Mouse wheel to zoom, centered on cursor
     const onWheel = (e: WheelEvent) => {
       if ((e.target as HTMLElement)?.closest?.(".fg-panel")) return;
       e.preventDefault();
@@ -1408,7 +1409,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
     };
     container.addEventListener("wheel", onWheel, { passive: false });
 
-    // ── Mouse drag → pan canvas ──
+    // Mouse drag to pan canvas
     const onMouseDown = (e: MouseEvent) => {
       if (e.button !== 0 && e.button !== 1) return;
       const tgt = e.target as HTMLElement;
@@ -1437,7 +1438,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
     };
     document.addEventListener("mouseup", onMouseUp);
 
-    // ── Touch support (mobile) ──
+    // Touch support (mobile)
     let touchState: { mode: string; initDist?: number; initZoom?: number; initPanX?: number; initPanY?: number; mx?: number; my?: number } | null = null;
 
     const onTouchStart = (e: TouchEvent) => {
@@ -1491,7 +1492,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
     };
     container.addEventListener("touchend", onTouchEnd, { passive: false });
 
-    // ── Navigation buttons (wired via data-attributes) ──
+    // Navigation buttons (wired via data-attributes)
     function fgZoom(delta: number) {
       const rect = container!.getBoundingClientRect();
       const mx = rect.width / 2, my = rect.height / 2;
@@ -1511,7 +1512,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
     navZoomOut?.addEventListener("click", onZoomOut);
     navReset?.addEventListener("click", autoFit);
 
-    // ── Store cleanup function ──
+    // Store cleanup function
     canvasCleanupRef.current = () => {
       container.removeEventListener("wheel", onWheel);
       container.removeEventListener("mousedown", onMouseDown);
@@ -1539,7 +1540,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
     setExpandedPersonas((prev) => ({ ...prev, [agentId]: !prev[agentId] }));
   }
 
-  // ── Active YAML content (supports multi-YAML switching) ──
+  // Active YAML content (supports multi-YAML switching)
   const yamlFileEntries = useMemo(() => {
     if (!workflow?.yaml_files || typeof workflow.yaml_files !== "object") return null;
     const entries = Object.entries(workflow.yaml_files);
@@ -1554,12 +1555,50 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
     return workflow?.yaml_content || "";
   }, [workflow?.yaml_content, yamlFileEntries, selectedYamlFile]);
 
+  const pythonFileEntries = useMemo(() => {
+    if (!workflow?.python_files || typeof workflow.python_files !== "object") return null;
+    const entries = Object.entries(workflow.python_files);
+    return entries.length > 0 ? entries : null;
+  }, [workflow?.python_files]);
+
+  const activePythonContent = useMemo(() => {
+    if (pythonFileEntries && selectedPythonFile) {
+      const found = pythonFileEntries.find(([name]) => name === selectedPythonFile);
+      if (found) return found[1];
+    }
+    return workflow?.python_content || "";
+  }, [workflow?.python_content, pythonFileEntries, selectedPythonFile]);
+
+  const hasYamlContent = activeYamlContent.trim().length > 0;
+  const hasPythonContent = activePythonContent.trim().length > 0;
+
+  const activeCodeContent = selectedCodeType === "python" ? activePythonContent : activeYamlContent;
+  const activeCodeFileName = selectedCodeType === "python" ? selectedPythonFile : selectedYamlFile;
+  const codePanelTitle = hasYamlContent && !hasPythonContent ? t("detail.yamlConfig") : hasPythonContent && !hasYamlContent ? "Python Workflow" : "Workflow Code";
+  const codeToggleLabel = yamlOpen ? (hasPythonContent ? "Hide Code" : t("detail.hideYaml")) : hasPythonContent ? "Show Code" : t("detail.showYaml");
+
   // Auto-select first YAML file when workflow loads
   useEffect(() => {
     if (yamlFileEntries && !selectedYamlFile) {
       setSelectedYamlFile(yamlFileEntries[0][0]);
     }
   }, [yamlFileEntries, selectedYamlFile]);
+
+  useEffect(() => {
+    if (pythonFileEntries && !selectedPythonFile) {
+      setSelectedPythonFile(pythonFileEntries[0][0]);
+    }
+  }, [pythonFileEntries, selectedPythonFile]);
+
+  useEffect(() => {
+    if (hasYamlContent) {
+      setSelectedCodeType((prev) => (prev === "python" && hasPythonContent ? prev : "yaml"));
+      return;
+    }
+    if (hasPythonContent) {
+      setSelectedCodeType("python");
+    }
+  }, [hasPythonContent, hasYamlContent, workflow?.id]);
 
   const expertsMap = useMemo(() => (workflow ? buildExpertsMap(workflow) : {}), [workflow]);
   const detailNodeLabels = useMemo(
@@ -1591,7 +1630,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
           : [],
     [workflow]
   );
-  // ── Skills & Cron helpers ──
+  // Skills and cron helpers
   const skillsInfo = useMemo(() => (workflow?.skills_info as Record<string, Record<string, SkillInfo>> | undefined) ?? {}, [workflow]);
   const cronJobs = useMemo(() => (workflow?.cron_jobs as Record<string, CronJob[]> | undefined) ?? {}, [workflow]);
 
@@ -1613,7 +1652,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
     return [];
   }
 
-  // ── Classify agents into 4 groups (matching Flask version) ──
+  // Classify agents into 4 groups (matching Flask version)
   type ClassifiedAgent = {
     name: string;
     tag: string;
@@ -1649,18 +1688,18 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
     const customAgentsList: ClassifiedAgent[] = [];
     const oasisTags = new Set<string>();
 
-    // 1) Experts → Oasis
+    // 1) Experts to Oasis
     expertsList.forEach((e) => {
       const tag = e.tag || "unknown";
       oasisTags.add(tag);
       oasisAgents.push({
-        name: e.name || tag, tag, emoji: TAG_CAT[tag] || TAG_EMOJI[tag] || "⭐",
+        name: e.name || tag, tag, emoji: TAG_CAT[tag] || TAG_EMOJI[tag] || "*",
         persona: e.persona || "", temperature: e.temperature, stages: [],
         sourceType: "oasis", localizationScopes: ["experts", "internal_agents"], agentSkills: getAgentSkills(e.name || tag), agentCronJobs: getAgentCronJobs(e.name || tag)
       });
     });
 
-    // 2) ocList → OpenClaw vs External
+    // 2) ocList to OpenClaw vs External
     ocList.forEach((entry) => {
       const isOC = entry.tag === "openclaw" || Boolean(entry.workspace_files) || Boolean((entry.config as Record<string, unknown>)?.workspace_files);
       const aName = String(entry.name || "?");
@@ -1676,13 +1715,13 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
       if (isOC) openclawAgents.push(agent); else externalAgentsList.push(agent);
     });
 
-    // 3) Internal agents not in oasis → Custom
+    // 3) Internal agents not in oasis to Custom
     intAgents.forEach((a) => {
       if (oasisTags.has(String(a.tag))) return;
       if (String(a.session || "").startsWith("oc_")) return;
       customAgentsList.push({
         name: String(a.name || a.tag || "?"), tag: String(a.tag || "custom"),
-        emoji: TAG_EMOJI[String(a.tag || "")] || "✨", persona: String(a.persona || ""),
+        emoji: TAG_EMOJI[String(a.tag || "")] || "*", persona: String(a.persona || ""),
         temperature: a.temperature ? Number(a.temperature) : undefined, stages: [],
         sourceType: "custom", localizationScopes: ["internal_agents", "experts"], agentSkills: getAgentSkills(String(a.name || a.tag || "")), agentCronJobs: getAgentCronJobs(String(a.name || a.tag || ""))
       });
@@ -1818,9 +1857,9 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
                 <Star className={`h-4 w-4 ${starred ? "fill-yellow-400 text-yellow-400" : ""}`} />
                 {starred ? t("detail.starred") : t("detail.star")}
               </Button>
-              <Button variant="outline" className={detailActionButtonClass} onClick={copyYaml}>
+              <Button variant="outline" className={detailActionButtonClass} onClick={copyCodeBlock}>
                 <Copy className="h-4 w-4" />
-                {t("detail.copyYaml")}
+                {selectedCodeType === "python" ? "Copy Python" : t("detail.copyYaml")}
               </Button>
               <Button
                 variant="outline"
@@ -1892,19 +1931,19 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
                     ))
                   : classifiedAgents.oasis.map((agent, idx) => (
                       <Badge key={`team-oasis-${agent.name}-${idx}`} variant="outline" className="border-emerald-500/50 text-emerald-400">
-                        {t("detail.internalBadge")} · {agent.emoji} {localizeAgentName(agent.name, agent.tag, agent.localizationScopes)}
+                        {t("detail.internalBadge")} 路 {agent.emoji} {localizeAgentName(agent.name, agent.tag, agent.localizationScopes)}
                       </Badge>
                     ))}
                 {/* External agents */}
                 {externalAgents.length > 0
                   ? externalAgents.map((agent) => (
                       <Badge key={`team-ext-${agent.name}-${String(agent.tag)}`} variant="outline" className="border-blue-500/50 text-blue-300">
-                        {t("detail.externalBadge")} · 🤖 {localizeAgentName(String(agent.name || ""), agent.tag ? String(agent.tag) : undefined, ["external_agents"])}
+                        {t("detail.externalBadge")} 路 馃 {localizeAgentName(String(agent.name || ""), agent.tag ? String(agent.tag) : undefined, ["external_agents"])}
                       </Badge>
                     ))
                   : [...classifiedAgents.openclaw, ...classifiedAgents.external, ...classifiedAgents.custom].map((agent, idx) => (
                       <Badge key={`team-clf-${agent.name}-${idx}`} variant="outline" className="border-blue-500/50 text-blue-300">
-                        {t("detail.externalBadge")} · {agent.emoji} {localizeAgentName(agent.name, agent.tag, agent.localizationScopes)}
+                        {t("detail.externalBadge")} 路 {agent.emoji} {localizeAgentName(agent.name, agent.tag, agent.localizationScopes)}
                       </Badge>
                     ))}
                 {/* Fallback if truly no agents at all */}
@@ -1916,7 +1955,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
           </CardContent>
         </Card>
 
-        {/* ── Workflow YAML file switcher (for teams with multiple YAML files) ── */}
+        {/* 鈹€鈹€ Workflow YAML file switcher (for teams with multiple YAML files) 鈹€鈹€ */}
         {yamlFileEntries && yamlFileEntries.length > 1 && (
           <Card className="mt-6">
             <CardHeader className="pb-3">
@@ -1932,7 +1971,30 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
                     onClick={() => setSelectedYamlFile(fileName)}
                     className="text-xs"
                   >
-                    📄 {fileName.replace(/\.ya?ml$/i, "")}
+                    馃搫 {fileName.replace(/\.ya?ml$/i, "")}
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {pythonFileEntries && pythonFileEntries.length > 1 && (
+          <Card className="mt-6">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Python Files</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {pythonFileEntries.map(([fileName]) => (
+                  <Button
+                    key={fileName}
+                    variant={selectedPythonFile === fileName ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedPythonFile(fileName)}
+                    className="text-xs"
+                  >
+                    {"<>"} {fileName.replace(/\.py$/i, "")}
                   </Button>
                 ))}
               </div>
@@ -2054,12 +2116,12 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
                         const firstKey = keys[0] || node.displayName || "";
                         const emoji =
                           node.type === "external"
-                            ? "🦞"
+                            ? "馃"
                             : node.type === "manual"
-                              ? "📝"
+                              ? "馃摑"
                             : node.type === "selector"
-                              ? "🎯"
-                              : TAG_EMOJI[firstKey] || TAG_EMOJI[node.displayName || ""] || "⭐";
+                              ? "馃幆"
+                              : TAG_EMOJI[firstKey] || TAG_EMOJI[node.displayName || ""] || "*";
                         const info = keys.map((key) => expertsMap[key]).find(Boolean) || (node.displayName ? expertsMap[node.displayName] : undefined);
                         const tagLabel = node.label ? node.label : firstKey && firstKey !== node.displayName ? firstKey : "";
                         const localizedInfoName = info
@@ -2088,7 +2150,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
                             {shouldShowTooltip ? (
                               <div className="agent-tooltip">
                                 <div className="tt-name">
-                                  {info ? (TAG_EMOJI[info.tag] || "⭐") : emoji} {info ? (localizedInfoName || info.name || node.displayName) : fallbackTooltipTitle}
+                                  {info ? (TAG_EMOJI[info.tag] || "*") : emoji} {info ? (localizedInfoName || info.name || node.displayName) : fallbackTooltipTitle}
                                 </div>
                                 {info ? <div className="tt-tag">{t("detail.tagPrefix")}{localizeTag(info.tag || firstKey)}</div> : null}
                                 {localizedInfoPersona || fallbackTooltipDescription ? <div className="tt-persona">{localizedInfoPersona || fallbackTooltipDescription}</div> : null}
@@ -2099,12 +2161,12 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
                         );
                       })}
                   </div>
-                  {/* Navigation controls — wired by the canvas engine via data-fg-action */}
+                  {/* Navigation controls wired by the canvas engine via data-fg-action */}
                   <div className="fg-nav">
-                    <button data-fg-action="zoom-out" title={t("detail.zoomOut")}>−</button>
+                    <button data-fg-action="zoom-out" title={t("detail.zoomOut")}>-</button>
                     <span className="fg-zoom-label">100%</span>
                     <button data-fg-action="zoom-in" title={t("detail.zoomIn")}>+</button>
-                    <button data-fg-action="reset" title={t("detail.resetView")}>⟲</button>
+                    <button data-fg-action="reset" title={t("detail.resetView")}>reset</button>
                   </div>
                 </div>
               </div>
@@ -2114,7 +2176,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
           </CardContent>
         </Card>
 
-        {/* ── Agents Section (matching Flask classification) ── */}
+        {/* Agents Section (matching Flask classification) */}
         <Card className="mt-6">
           <CardHeader>
             <CardTitle>{t("detail.agents")}</CardTitle>
@@ -2138,7 +2200,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
                       className={`agent-type-header ${isCollapsed ? "collapsed" : ""}`}
                       onClick={() => toggleAgentGroup(group.key)}
                     >
-                      <span className="type-arrow">{isCollapsed ? "▶" : "▼"}</span>
+                      <span className="type-arrow">{isCollapsed ? "+" : "-"}</span>
                       <span className="type-emoji">{group.emoji}</span>
                       <span className="type-title">{group.title}</span>
                       <span className={`agent-type-badge ${group.badge}`}>{group.agents.length}</span>
@@ -2180,7 +2242,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
                               {agent.persona && (
                                 <>
                                 <div className="agent-persona-toggle" onClick={() => togglePersona(agentId)}>
-                                    <span>{isExpanded ? "▼" : "▶"}</span>
+                                    <span>{isExpanded ? "-" : "+"}</span>
                                     <span>{t("detail.persona")}</span>
                                   </div>
                                   {isExpanded && <div className="agent-card-persona">{localizedAgentPersona}</div>}
@@ -2259,27 +2321,59 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
           </CardContent>
         </Card>
 
-        {/* ── YAML Configuration (at the bottom) ── */}
-        <Card className="mt-6">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div className="flex items-center gap-2">
-              <CardTitle>{t("detail.yamlConfig")}</CardTitle>
-              {yamlFileEntries && selectedYamlFile && (
-                <Badge variant="outline" className="text-xs">
-                  📄 {selectedYamlFile}
-                </Badge>
-              )}
-            </div>
-            <Button variant="outline" size="sm" onClick={() => setYamlOpen((prev) => !prev)}>
-              {yamlOpen ? t("detail.hideYaml") : t("detail.showYaml")}
-            </Button>
-          </CardHeader>
-          {yamlOpen ? (
-            <CardContent>
-<pre className="max-h-[520px] overflow-auto rounded-md border bg-muted p-4 text-xs leading-6 text-foreground">{activeYamlContent}</pre>
-            </CardContent>
-          ) : null}
-        </Card>
+        {hasPythonContent ? (
+          <Card className="mt-6">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="flex flex-wrap items-center gap-2">
+                <CardTitle>{codePanelTitle}</CardTitle>
+                {hasYamlContent ? (
+                  <>
+                    <Button type="button" variant={selectedCodeType === "yaml" ? "default" : "outline"} size="sm" onClick={() => setSelectedCodeType("yaml")}>
+                      YAML
+                    </Button>
+                    <Button type="button" variant={selectedCodeType === "python" ? "default" : "outline"} size="sm" onClick={() => setSelectedCodeType("python")}>
+                      Python
+                    </Button>
+                  </>
+                ) : null}
+                {activeCodeFileName ? (
+                  <Badge variant="outline" className="text-xs">
+                    {selectedCodeType === "python" ? "<>" : "📄"} {activeCodeFileName}
+                  </Badge>
+                ) : null}
+              </div>
+              <Button variant="outline" size="sm" onClick={() => setYamlOpen((prev) => !prev)}>
+                {codeToggleLabel}
+              </Button>
+            </CardHeader>
+            {yamlOpen ? (
+              <CardContent>
+                <pre className="max-h-[520px] overflow-auto rounded-md border bg-muted p-4 text-xs leading-6 text-foreground">{activeCodeContent}</pre>
+              </CardContent>
+            ) : null}
+          </Card>
+        ) : (
+          <Card className="mt-6">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CardTitle>{t("detail.yamlConfig")}</CardTitle>
+                {yamlFileEntries && selectedYamlFile && (
+                  <Badge variant="outline" className="text-xs">
+                    📄 {selectedYamlFile}
+                  </Badge>
+                )}
+              </div>
+              <Button variant="outline" size="sm" onClick={() => setYamlOpen((prev) => !prev)}>
+                {yamlOpen ? t("detail.hideYaml") : t("detail.showYaml")}
+              </Button>
+            </CardHeader>
+            {yamlOpen ? (
+              <CardContent>
+                <pre className="max-h-[520px] overflow-auto rounded-md border bg-muted p-4 text-xs leading-6 text-foreground">{activeYamlContent}</pre>
+              </CardContent>
+            ) : null}
+          </Card>
+        )}
       </main>
 
       <Dialog open={loginOpen} onOpenChange={setLoginOpen}>
@@ -2304,3 +2398,4 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
     </div>
   );
 }
+

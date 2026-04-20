@@ -67,6 +67,7 @@ export interface Workflow {
   forks: number;
   icon: string;
   yaml_content: string;
+  python_content?: string;
   detail: string;
   published_at?: string;
   source?: "preset" | "community" | "user";
@@ -85,6 +86,7 @@ export interface Workflow {
   skills_info?: Record<string, Record<string, SkillInfo>>;
   cron_jobs?: Record<string, CronJob[]>;
   yaml_files?: Record<string, string>;
+  python_files?: Record<string, string>;
   localizations?: WorkflowLocalizations;
 }
 

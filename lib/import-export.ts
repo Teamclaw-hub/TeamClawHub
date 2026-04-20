@@ -247,6 +247,14 @@ export async function importZipBuffer(buffer: Buffer, options: ImportOptions) {
     }))
     .filter((entry) => isValidWorkflowYaml(entry.content));
 
+  const pythonFiles = entries
+    .filter((entry) => !entry.isDirectory && entry.entryName.toLowerCase().endsWith(".py"))
+    .map((entry) => ({
+      path: entry.entryName,
+      fileName: path.basename(entry.entryName),
+      content: entry.getData().toString("utf-8")
+    }));
+
   const zipName = options.fileName ?? "upload.zip";
   const zipStem = path.basename(zipName).replace(/\.zip$/i, "");
   const baseTitle = (options.team_name || zipStem).replace(/_/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
@@ -259,10 +267,15 @@ export async function importZipBuffer(buffer: Buffer, options: ImportOptions) {
     yamlFilesMap[entry.fileName] = entry.content;
   });
 
-  if (yamlFiles.length > 0) {
-    // For v2: store as ONE workflow entry with all YAML files and a yaml_files map
-    // The primary yaml_content is the first YAML file
+  const pythonFilesMap: Record<string, string> = {};
+  pythonFiles.forEach((entry) => {
+    pythonFilesMap[entry.fileName] = entry.content;
+  });
+
+  if (yamlFiles.length > 0 || pythonFiles.length > 0) {
+    // Store one workflow entry for the imported snapshot, preserving both YAML and Python forms when present.
     const primaryYaml = yamlFiles[0];
+    const primaryPython = pythonFiles[0];
     const mergedTags = [...new Set([...(options.tags ?? []), "team", "snapshot"])];
 
     // Merge experts from all YAML files
@@ -283,7 +296,8 @@ export async function importZipBuffer(buffer: Buffer, options: ImportOptions) {
       stars: 0,
       forks: 0,
       icon: "📦",
-      yaml_content: primaryYaml.content,
+      yaml_content: primaryYaml?.content ?? "",
+      python_content: primaryPython?.content,
       detail: "",
       published_at: new Date().toISOString(),
       internal_agents: internalAgents,
@@ -295,7 +309,8 @@ export async function importZipBuffer(buffer: Buffer, options: ImportOptions) {
       skills_data: skillsData,
       skills_info: Object.keys(skillsInfo).length > 0 ? skillsInfo : undefined,
       cron_jobs: Object.keys(cronJobs).length > 0 ? cronJobs : undefined,
-      yaml_files: yamlFiles.length > 1 ? yamlFilesMap : undefined
+      yaml_files: yamlFiles.length > 0 ? yamlFilesMap : undefined,
+      python_files: pythonFiles.length > 0 ? pythonFilesMap : undefined
     };
 
     workflow.localizations = await buildWorkflowLocalizations(workflow);
@@ -304,7 +319,7 @@ export async function importZipBuffer(buffer: Buffer, options: ImportOptions) {
     imported.push(baseTitle);
   }
 
-  if (!yamlFiles.length && (internalAgents.length || externalAgents.length || expertsList.length)) {
+  if (!yamlFiles.length && !pythonFiles.length && (internalAgents.length || externalAgents.length || expertsList.length)) {
     const names = [...internalAgents, ...externalAgents].map((agent) => agent.name || "?");
     const mergedTags = [...new Set([...(options.tags ?? []), "team", "snapshot"])];
     const title = baseTitle || `Team Snapshot (${names.length} agents)`;
@@ -340,7 +355,7 @@ export async function importZipBuffer(buffer: Buffer, options: ImportOptions) {
   }
 
   if (!imported.length) {
-    throw new Error("ZIP file does not contain any valid workflow YAML files or agent/expert definitions");
+    throw new Error("ZIP file does not contain any valid workflow YAML/Python files or agent/expert definitions");
   }
 
   await saveHubMeta(meta);
@@ -452,6 +467,15 @@ export function exportWorkflowZip(workflowId: string): { buffer: Buffer; filenam
   } else if (yamlContent) {
     const safeName = sanitizeFileName(workflow.title || "workflow") || "my-layout";
     zip.addFile(`oasis/yaml/${safeName}.yaml`, Buffer.from(yamlContent, "utf-8"));
+  }
+
+  if (workflow.python_files && typeof workflow.python_files === "object" && Object.keys(workflow.python_files).length > 0) {
+    Object.entries(workflow.python_files).forEach(([fileName, content]) => {
+      zip.addFile(`oasis/python/${fileName}`, Buffer.from(content, "utf-8"));
+    });
+  } else if (workflow.python_content) {
+    const safeName = sanitizeFileName(workflow.title || "workflow") || "workflow";
+    zip.addFile(`oasis/python/${safeName}.py`, Buffer.from(workflow.python_content, "utf-8"));
   }
 
   // Export cron_jobs.json if available
