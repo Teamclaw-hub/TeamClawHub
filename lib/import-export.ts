@@ -34,6 +34,25 @@ function asAgentArray(raw: unknown): Agent[] {
   return raw.filter((item) => item && typeof item === "object") as Agent[];
 }
 
+function asCronJobsMap(raw: unknown): Record<string, CronJob[]> {
+  if (!raw || typeof raw !== "object") {
+    return {};
+  }
+  if (Array.isArray(raw)) {
+    return { _team: raw.filter((item) => item && typeof item === "object") as CronJob[] };
+  }
+
+  const result: Record<string, CronJob[]> = {};
+  Object.entries(raw as Record<string, unknown>).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      result[key] = value.filter((item) => item && typeof item === "object") as CronJob[];
+    } else if (value && typeof value === "object") {
+      result[key] = [value as CronJob];
+    }
+  });
+  return result;
+}
+
 function parseJson(raw: string): unknown {
   try {
     return JSON.parse(raw);
@@ -140,14 +159,16 @@ export async function importZipBuffer(buffer: Buffer, options: ImportOptions) {
     if (name.startsWith("skills/")) {
       skillsData[name] = entry.getData().toString("base64");
 
-      // Parse skills metadata to build skills_info per agent
+      // Parse skills metadata to build skills_info. Current ClawCross exports
+      // support both skills/<skillName>/... and skills/<agentName>/<skillName>/...
       const parts = name.split("/");
-      // Expected structures:
-      //   skills/<agentName>/<skillName>/_meta.json           (4 parts)
-      //   skills/<agentName>/<skillName>/.clawhub/origin.json (5 parts)
-      if (parts.length >= 4) {
-        const agentName = parts[1];
-        const skillName = parts[2];
+      if (parts.length >= 3) {
+        const usesAgentNamespace =
+          parts.length >= 4 &&
+          !["SKILL.md", "README.md", "PACKAGE.md", "INSTALLATION.md", "UPLOAD_INSTRUCTIONS.md", "openclaw.skill.json", "clawhub.json", "_meta.json"].includes(parts[2]) &&
+          !parts[2].startsWith(".");
+        const agentName = usesAgentNamespace ? parts[1] : "_team";
+        const skillName = usesAgentNamespace ? parts[2] : parts[1];
         if (base === "_meta.json" || base === "origin.json") {
           try {
             const metaContent = JSON.parse(entry.getData().toString("utf-8"));
@@ -175,9 +196,7 @@ export async function importZipBuffer(buffer: Buffer, options: ImportOptions) {
     // Parse cron_jobs.json
     if (base === "cron_jobs.json") {
       const parsed = parseJson(fileText);
-      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-        cronJobs = parsed as Record<string, CronJob[]>;
-      }
+      cronJobs = asCronJobsMap(parsed);
     }
 
     if (base === "internal_agents.json") {

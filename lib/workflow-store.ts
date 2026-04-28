@@ -202,10 +202,11 @@ function isExternalAgentRef(raw: string): boolean {
     .map((part) => part.trim().toLowerCase())
     .filter(Boolean);
   const head = parts[0] || "";
+  const markers = new Set(["ext", "external", "openclaw", "open_claw", "open-claw", "agent"]);
   if (head.startsWith("agent:")) {
     return true;
   }
-  if (parts.includes("openclaw") || head.includes("openclaw")) {
+  if (parts.some((part) => markers.has(part)) || head.includes("openclaw")) {
     return true;
   }
   return head === "external" || head === "open_claw_agent" || head === "open-claw-agent" || head === "open claw agent";

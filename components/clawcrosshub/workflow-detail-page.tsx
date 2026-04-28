@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowLeft, Copy, Download, Github, LogOut, Star, UserRound } from "lucide-react";
+import type { ReactNode } from "react";
+import { ArrowLeft, Bot, Brain, Copy, Download, FileText, Github, GitBranch, LogOut, Star, UserCog, UserRound, Wrench } from "lucide-react";
 import yaml from "js-yaml";
 
 import { SiteHeader } from "@/components/clawcrosshub/site-header";
@@ -176,7 +177,7 @@ type EngineLayout = {
 type AgentLocalizationScopes = Array<"experts" | "internal_agents" | "external_agents">;
 type CodeViewType = "yaml" | "python";
 
-const GENERIC_AGENT_TAGS = new Set(["openclaw", "external", "custom", "selector", "selector_agent", "agent", "manual", "all_experts"]);
+const GENERIC_AGENT_TAGS = new Set(["openclaw", "external", "ext", "custom", "selector", "selector_agent", "agent", "manual", "all_experts"]);
 
 function isGenericAgentTag(value: string): boolean {
   return GENERIC_AGENT_TAGS.has(value.trim().toLowerCase());
@@ -184,7 +185,8 @@ function isGenericAgentTag(value: string): boolean {
 
 function isExternalAgentReference(raw: string): boolean {
   const normalized = String(raw || "").trim().toLowerCase();
-  return normalized.startsWith("agent:") || normalized.startsWith("openclaw#") || normalized.startsWith("external#");
+  const parts = normalized.split("#").map((part) => part.trim()).filter(Boolean);
+  return normalized.startsWith("agent:") || normalized.startsWith("openclaw#") || normalized.startsWith("external#") || parts.includes("ext");
 }
 
 function parseAgent(rawStr: string): { displayName: string; lookupKeys: string[] } {
@@ -203,17 +205,30 @@ function parseAgent(rawStr: string): { displayName: string; lookupKeys: string[]
   const parts = raw.split("#").map((part) => part.trim());
   const head = (parts[0] || "").trim();
   const headLower = head.toLowerCase();
+  const marker = (parts[1] || "").trim().toLowerCase();
+
+  if (parts.length >= 3 && ["ext", "external", "openclaw", "oasis", "agent"].includes(marker)) {
+    const agentName = parts.slice(2).join("#").trim();
+    if (agentName && !isGenericAgentTag(agentName)) {
+      return { displayName: agentName, lookupKeys: [agentName, head, raw] };
+    }
+  }
 
   if (headLower === "custom" && parts.length >= 3) {
     const agentName = parts.slice(2).join("#").trim();
     return { displayName: agentName || head, lookupKeys: [agentName || head, raw, head] };
   }
 
-  if ((headLower === "openclaw" || headLower === "external" || headLower === "agent") && parts.length >= 2) {
+  if ((headLower === "openclaw" || headLower === "external" || headLower === "ext" || headLower === "agent") && parts.length >= 2) {
     const agentName = (parts.length >= 3 ? parts.slice(2).join("#") : parts[parts.length - 1] || "").trim();
     if (agentName && !isGenericAgentTag(agentName)) {
       return { displayName: agentName, lookupKeys: [agentName, raw, head] };
     }
+  }
+
+  if (parts.some((part) => part.toLowerCase() === "ext") && parts.length >= 3) {
+    const agentName = parts.slice(2).join("#").trim();
+    return { displayName: agentName || head, lookupKeys: [agentName || head, raw, head] };
   }
 
   if (headLower === "custom" && parts.length >= 2) {
@@ -233,6 +248,10 @@ function resolveDisplayNameFromEngineNode(node: EngineNode, index: number): { di
   const parsedTag = rawTag ? parseAgent(rawTag) : { displayName: "", lookupKeys: [] };
 
   let displayName = parsedName.displayName;
+  const tagLooksStructured = rawTag.includes("#") || ["ext", "external", "openclaw", "oasis", "agent"].includes(rawTag.toLowerCase());
+  if (tagLooksStructured && parsedTag.displayName && !isGenericAgentTag(parsedTag.displayName)) {
+    displayName = parsedTag.displayName;
+  }
   if (!displayName || isGenericAgentTag(displayName)) {
     if (parsedTag.displayName && !isGenericAgentTag(parsedTag.displayName)) {
       displayName = parsedTag.displayName;
@@ -1136,6 +1155,30 @@ function buildExpertsMap(workflow: Workflow): Record<string, Expert> {
     }
   });
 
+  const externalAgents = Array.isArray(workflow.external_agents)
+    ? workflow.external_agents
+    : Array.isArray(workflow.openclaw_agents)
+      ? workflow.openclaw_agents
+      : [];
+  externalAgents.forEach((agent) => {
+    const name = String(agent.name ?? "").trim();
+    const tag = String(agent.tag ?? "").trim();
+    if (!name) {
+      return;
+    }
+    const expertLike: Expert = {
+      name,
+      tag,
+      persona: getExternalAgentPersona(agent),
+      temperature: typeof agent.temperature === "number" ? agent.temperature : 0.7
+    };
+    [name, tag, `${tag}#ext#${name}`, `${tag}#external#${name}`].forEach((key) => {
+      if (key && !result[key]) {
+        result[key] = expertLike;
+      }
+    });
+  });
+
   return result;
 }
 
@@ -1148,12 +1191,35 @@ function getNodeClass(type: DiagramNodeType): string {
   return "fg-node";
 }
 
+function renderNodeIcon(type: DiagramNodeType, tag?: string): ReactNode {
+  const iconClass = "h-5 w-5";
+  if (type === "external") return <Bot className={iconClass} aria-hidden="true" />;
+  if (type === "manual") return <FileText className={iconClass} aria-hidden="true" />;
+  if (type === "selector") return <GitBranch className={iconClass} aria-hidden="true" />;
+  if (type === "parallel") return <GitBranch className={iconClass} aria-hidden="true" />;
+  if (type === "all") return <Brain className={iconClass} aria-hidden="true" />;
+  if (tag === "creative") return "🎨";
+  if (tag === "critical") return "🔍";
+  if (tag === "data") return "📊";
+  if (tag === "synthesis") return "🎯";
+  return <UserCog className={iconClass} aria-hidden="true" />;
+}
+
+function renderAgentIcon(sourceType: "oasis" | "openclaw" | "external" | "custom", tag?: string): ReactNode {
+  const iconClass = "h-6 w-6";
+  if (sourceType === "external" || sourceType === "openclaw") return <Bot className={iconClass} aria-hidden="true" />;
+  if (sourceType === "custom") return <UserRound className={iconClass} aria-hidden="true" />;
+  if (tag === "creative" || tag === "synthesis") return <Brain className={iconClass} aria-hidden="true" />;
+  return <UserCog className={iconClass} aria-hidden="true" />;
+}
+
 export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
   const { locale, t } = useI18n();
   const currentLocale = locale as SupportedLocale;
   const [workflow, setWorkflow] = useState<Workflow | null>(null);
   const [loading, setLoading] = useState(true);
   const [yamlOpen, setYamlOpen] = useState(false);
+  const [pythonOpen, setPythonOpen] = useState(false);
   const graphRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
   const [engineLayoutRaw, setEngineLayoutRaw] = useState<unknown | null>(null);
@@ -1164,6 +1230,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
   const [clawcrossReturnOrigin, setClawcrossReturnOrigin] = useState("");
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
   const [expandedPersonas, setExpandedPersonas] = useState<Record<string, boolean>>({});
+  const [expandedSkills, setExpandedSkills] = useState<Record<string, boolean>>({});
   const [user, setUser] = useState<GithubUser | null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
   const [starred, setStarred] = useState(false);
@@ -1540,6 +1607,10 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
     setExpandedPersonas((prev) => ({ ...prev, [agentId]: !prev[agentId] }));
   }
 
+  function toggleSkill(skillId: string) {
+    setExpandedSkills((prev) => ({ ...prev, [skillId]: !prev[skillId] }));
+  }
+
   // Active YAML content (supports multi-YAML switching)
   const yamlFileEntries = useMemo(() => {
     if (!workflow?.yaml_files || typeof workflow.yaml_files !== "object") return null;
@@ -1573,9 +1644,6 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
   const hasPythonContent = activePythonContent.trim().length > 0;
 
   const activeCodeContent = selectedCodeType === "python" ? activePythonContent : activeYamlContent;
-  const activeCodeFileName = selectedCodeType === "python" ? selectedPythonFile : selectedYamlFile;
-  const codePanelTitle = hasYamlContent && !hasPythonContent ? t("detail.yamlConfig") : hasPythonContent && !hasYamlContent ? "Python Workflow" : "Workflow Code";
-  const codeToggleLabel = yamlOpen ? (hasPythonContent ? "Hide Code" : t("detail.hideYaml")) : hasPythonContent ? "Show Code" : t("detail.showYaml");
 
   // Auto-select first YAML file when workflow loads
   useEffect(() => {
@@ -1633,6 +1701,8 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
   // Skills and cron helpers
   const skillsInfo = useMemo(() => (workflow?.skills_info as Record<string, Record<string, SkillInfo>> | undefined) ?? {}, [workflow]);
   const cronJobs = useMemo(() => (workflow?.cron_jobs as Record<string, CronJob[]> | undefined) ?? {}, [workflow]);
+  const teamSkills = useMemo(() => skillsInfo._team || skillsInfo._global || null, [skillsInfo]);
+  const teamCronJobs = useMemo(() => cronJobs._team || cronJobs._global || [], [cronJobs]);
 
   function getAgentSkills(agentName: string): Record<string, SkillInfo> | null {
     if (skillsInfo[agentName]) return skillsInfo[agentName];
@@ -1650,6 +1720,106 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
       if (key.toLowerCase() === lower) return cronJobs[key];
     }
     return [];
+  }
+
+  function renderSkillMeta(skillData: SkillInfo) {
+    return (
+      <div className="agent-skill-meta">
+        {skillData.meta?.version && <span>📦 v{skillData.meta.version}</span>}
+        {skillData.meta?.slug && <span>🏷️ {String(skillData.meta.slug)}</span>}
+        {skillData.origin?.registry && <span style={{ opacity: 0.7 }}>🌐 {String(skillData.origin.registry)}</span>}
+        {skillData.origin?.installedVersion && <span>📥 v{String(skillData.origin.installedVersion)}</span>}
+        {skillData.files?.length ? <span>📄 {skillData.files.length}</span> : null}
+      </div>
+    );
+  }
+
+  function getSkillDataEntries(scope: string, skillName: string): Array<{ path: string; content: string }> {
+    const rawData = workflow?.skills_data;
+    if (!rawData || typeof rawData !== "object") {
+      return [];
+    }
+
+    const prefixes = scope === "_team" ? [`skills/${skillName}/`] : [`skills/${scope}/${skillName}/`, `skills/${skillName}/`];
+    return Object.entries(rawData)
+      .flatMap(([relPath, content]) => {
+        if (typeof content !== "string") {
+          return [];
+        }
+        const prefix = prefixes.find((candidate) => relPath.startsWith(candidate));
+        return prefix ? [{ path: relPath.slice(prefix.length), content }] : [];
+      })
+      .sort((a, b) => a.path.localeCompare(b.path));
+  }
+
+  function decodeSkillText(content: string): string | null {
+    try {
+      const binary = atob(content);
+      const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+      const decoded = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      if (/[\x00-\x08\x0E-\x1F]/.test(decoded)) {
+        return null;
+      }
+      return decoded;
+    } catch {
+      return null;
+    }
+  }
+
+  function renderSkillItem(scope: string, skillName: string, skillData: SkillInfo) {
+    const skillId = `${scope}:${skillName}`;
+    const isExpanded = expandedSkills[skillId] ?? false;
+    const entries = getSkillDataEntries(scope, skillName);
+    const skillMdEntry = entries.find((entry) => entry.path === "SKILL.md");
+    const primaryEntry =
+      skillMdEntry ||
+      entries.find((entry) => entry.path.endsWith(".md")) ||
+      entries.find((entry) => entry.path.endsWith(".json")) ||
+      entries.find((entry) => entry.path.endsWith(".py"));
+    const skillMdText = skillMdEntry ? decodeSkillText(skillMdEntry.content) : null;
+    const decoded = (isExpanded ? primaryEntry : skillMdEntry) ? decodeSkillText((isExpanded ? primaryEntry : skillMdEntry)!.content) : null;
+    const previewText = skillMdText
+      ? skillMdText
+          .replace(/^---[\s\S]*?---\s*/, "")
+          .split(/\r?\n/)
+          .map((line) => line.trim())
+          .filter(Boolean)
+          .slice(0, 4)
+          .join("\n")
+          .slice(0, 420)
+      : "";
+
+    return (
+      <div key={skillId} className="agent-skill-item">
+        <button type="button" className="agent-persona-toggle w-full justify-between text-left" onClick={() => toggleSkill(skillId)}>
+          <span className="inline-flex items-center gap-1.5">
+            <Wrench className="h-3.5 w-3.5" aria-hidden="true" />
+            <span className="agent-skill-name">{skillName}</span>
+          </span>
+          <span>{isExpanded ? "-" : "+"}</span>
+        </button>
+        {renderSkillMeta(skillData)}
+        {!isExpanded && previewText ? (
+          <pre className="mt-2 max-h-28 overflow-hidden whitespace-pre-wrap rounded-md border bg-muted p-3 text-xs leading-5 text-muted-foreground">{previewText}</pre>
+        ) : null}
+        {isExpanded ? (
+          <div className="mt-2 space-y-2">
+            {entries.length > 0 ? (
+              <div className="flex flex-wrap gap-1">
+                {entries.map((entry) => (
+                  <span key={entry.path} className="agent-node-chip">{entry.path}</span>
+                ))}
+              </div>
+            ) : null}
+            {decoded ? (
+              <pre className="max-h-80 overflow-auto rounded-md border bg-muted p-3 text-xs leading-5 text-foreground">{decoded}</pre>
+            ) : primaryEntry ? (
+              <div className="text-xs text-muted-foreground">{primaryEntry.path}</div>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+    );
   }
 
   // Classify agents into 4 groups (matching Flask version)
@@ -1886,7 +2056,6 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
         </section>
 
         <div className="mt-4 flex flex-wrap gap-2">
-          {workflow.is_dag ? <Badge className="bg-emerald-600">{t("detail.dagMode")}</Badge> : null}
           <Badge variant="secondary">{workflow.repeat ? t("detail.repeat") : t("detail.runOnce")}</Badge>
           <Badge variant="outline">📊 {workflow.steps || 0} {t("detail.steps")}</Badge>
           {(workflow.tags || []).map((tag) => (
@@ -1931,19 +2100,19 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
                     ))
                   : classifiedAgents.oasis.map((agent, idx) => (
                       <Badge key={`team-oasis-${agent.name}-${idx}`} variant="outline" className="border-emerald-500/50 text-emerald-400">
-                        {t("detail.internalBadge")} 路 {agent.emoji} {localizeAgentName(agent.name, agent.tag, agent.localizationScopes)}
+                        {t("detail.internalBadge")} · {agent.emoji} {localizeAgentName(agent.name, agent.tag, agent.localizationScopes)}
                       </Badge>
                     ))}
                 {/* External agents */}
                 {externalAgents.length > 0
                   ? externalAgents.map((agent) => (
                       <Badge key={`team-ext-${agent.name}-${String(agent.tag)}`} variant="outline" className="border-blue-500/50 text-blue-300">
-                        {t("detail.externalBadge")} 路 馃 {localizeAgentName(String(agent.name || ""), agent.tag ? String(agent.tag) : undefined, ["external_agents"])}
+                        {t("detail.externalBadge")} · <Bot className="h-3.5 w-3.5" aria-hidden="true" /> {localizeAgentName(String(agent.name || ""), agent.tag ? String(agent.tag) : undefined, ["external_agents"])}
                       </Badge>
                     ))
                   : [...classifiedAgents.openclaw, ...classifiedAgents.external, ...classifiedAgents.custom].map((agent, idx) => (
                       <Badge key={`team-clf-${agent.name}-${idx}`} variant="outline" className="border-blue-500/50 text-blue-300">
-                        {t("detail.externalBadge")} 路 {agent.emoji} {localizeAgentName(agent.name, agent.tag, agent.localizationScopes)}
+                        {t("detail.externalBadge")} · {agent.emoji} {localizeAgentName(agent.name, agent.tag, agent.localizationScopes)}
                       </Badge>
                     ))}
                 {/* Fallback if truly no agents at all */}
@@ -1955,7 +2124,55 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
           </CardContent>
         </Card>
 
-        {/* 鈹€鈹€ Workflow YAML file switcher (for teams with multiple YAML files) 鈹€鈹€ */}
+        {teamSkills && Object.keys(teamSkills).length > 0 ? (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>{t("detail.skills")}</CardTitle>
+              <CardDescription>{Object.keys(teamSkills).length} {t("detail.skills")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="agent-skills-section mt-0">
+                {Object.entries(teamSkills).map(([skillName, skillData]) => renderSkillItem("_team", skillName, skillData))}
+              </div>
+            </CardContent>
+          </Card>
+        ) : null}
+
+        {teamCronJobs.length > 0 ? (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>{t("detail.cronJobs")}</CardTitle>
+              <CardDescription>{teamCronJobs.length} {t("detail.cronJobs")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="agent-cron-section mt-0">
+                {teamCronJobs.map((job, jIdx) => (
+                  <div key={`team-cron-${jIdx}`} className="agent-cron-item">
+                    <div className="flex items-center gap-1.5">
+                      <span className="agent-cron-name">{pickCronJobText(workflow?.localizations, "_team", jIdx, "name", String(job.name || t("detail.unnamedJob")), currentLocale)}</span>
+                      <span className={job.enabled ? "agent-cron-badge-enabled" : "agent-cron-badge-disabled"}>
+                        {job.enabled ? t("detail.enabled") : t("detail.disabled")}
+                      </span>
+                    </div>
+                    <div className="agent-cron-detail">
+                      {job.scheduleKind && <span>📋 {String(job.scheduleKind)}</span>}
+                      {job.cron && <span>🕐 {String(job.cron)}</span>}
+                      {job.at && <span>📅 {new Date(job.at).toLocaleString()}</span>}
+                      {job.every && <span>🔄 every {String(job.every)}</span>}
+                      {job.mode && <span>📢 {String(job.mode)}</span>}
+                      {job.session && <span>🔗 {String(job.session)}</span>}
+                    </div>
+                    {job.message ? (
+                      <div className="agent-cron-msg">💬 {pickCronJobText(workflow?.localizations, "_team", jIdx, "message", String(job.message), currentLocale).slice(0, 120)}</div>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ) : null}
+
+        {/* ── Workflow YAML file switcher (for teams with multiple YAML files) ── */}
         {yamlFileEntries && yamlFileEntries.length > 1 && (
           <Card className="mt-6">
             <CardHeader className="pb-3">
@@ -1971,7 +2188,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
                     onClick={() => setSelectedYamlFile(fileName)}
                     className="text-xs"
                   >
-                    馃搫 {fileName.replace(/\.ya?ml$/i, "")}
+                    File {fileName.replace(/\.ya?ml$/i, "")}
                   </Button>
                 ))}
               </div>
@@ -2114,21 +2331,15 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
                       .map((node) => {
                         const keys = node.lookupKeys || (node.displayName ? [node.displayName] : []);
                         const firstKey = keys[0] || node.displayName || "";
-                        const emoji =
-                          node.type === "external"
-                            ? "馃"
-                            : node.type === "manual"
-                              ? "馃摑"
-                            : node.type === "selector"
-                              ? "馃幆"
-                              : TAG_EMOJI[firstKey] || TAG_EMOJI[node.displayName || ""] || "*";
                         const info = keys.map((key) => expertsMap[key]).find(Boolean) || (node.displayName ? expertsMap[node.displayName] : undefined);
-                        const tagLabel = node.label ? node.label : firstKey && firstKey !== node.displayName ? firstKey : "";
+                        const tagLabel = keys.find((key) => key && key !== node.displayName && !key.includes("#")) || "";
+                        const nodeIcon = renderNodeIcon(node.type, info?.tag || tagLabel || firstKey);
+                        const nodeLocalizationScopes: AgentLocalizationScopes = node.type === "external" ? ["external_agents"] : ["experts", "internal_agents"];
                         const localizedInfoName = info
-                          ? localizeAgentName(info.name || node.displayName || "", info.tag, ["experts", "internal_agents"])
+                          ? localizeAgentName(info.name || node.displayName || "", info.tag, nodeLocalizationScopes)
                           : node.displayName || "";
                         const localizedInfoPersona = info
-                          ? localizeAgentPersona(info.name || node.displayName || "", info.tag, ["experts", "internal_agents"], info.persona || "")
+                          ? localizeAgentPersona(info.name || node.displayName || "", info.tag, nodeLocalizationScopes, info.persona || "")
                           : "";
                         const fallbackTooltipTitle = node.tooltipTitle || localizedInfoName || node.displayName || "";
                         const fallbackTooltipDescription = node.tooltipDescription || "";
@@ -2141,7 +2352,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
                             style={{ left: `${node.x}px`, top: `${node.y}px`, width: `${node.w}px`, height: `${node.h}px` }}
                           >
                             <div className="fg-port port-in" />
-                            <span className="fg-emoji">{emoji}</span>
+                            <span className="fg-emoji">{nodeIcon}</span>
                             <div className="fg-info">
                               <div className="fg-name">{localizedInfoName || node.displayName}</div>
                               {tagLabel ? <div className="fg-tag">{localizeTag(tagLabel)}</div> : null}
@@ -2150,7 +2361,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
                             {shouldShowTooltip ? (
                               <div className="agent-tooltip">
                                 <div className="tt-name">
-                                  {info ? (TAG_EMOJI[info.tag] || "*") : emoji} {info ? (localizedInfoName || info.name || node.displayName) : fallbackTooltipTitle}
+                                  {info ? (TAG_EMOJI[info.tag] || nodeIcon) : nodeIcon} {info ? (localizedInfoName || info.name || node.displayName) : fallbackTooltipTitle}
                                 </div>
                                 {info ? <div className="tt-tag">{t("detail.tagPrefix")}{localizeTag(info.tag || firstKey)}</div> : null}
                                 {localizedInfoPersona || fallbackTooltipDescription ? <div className="tt-persona">{localizedInfoPersona || fallbackTooltipDescription}</div> : null}
@@ -2218,7 +2429,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
                           return (
                             <div key={agentId} className="agent-card">
                                 <div className="agent-card-top">
-                                  <div className="agent-card-icon">{agent.emoji}</div>
+                                  <div className="agent-card-icon">{renderAgentIcon(agent.sourceType, agent.tag)}</div>
                                   <div className="min-w-0 flex-1">
                                     <div className="agent-card-name">{localizedAgentName}</div>
                                   <div className="agent-card-tag">{localizeTag(agent.tag)}</div>
@@ -2242,6 +2453,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
                               {agent.persona && (
                                 <>
                                 <div className="agent-persona-toggle" onClick={() => togglePersona(agentId)}>
+                                    <UserRound className="h-3.5 w-3.5" aria-hidden="true" />
                                     <span>{isExpanded ? "-" : "+"}</span>
                                     <span>{t("detail.persona")}</span>
                                   </div>
@@ -2266,15 +2478,7 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
                                 <div className="agent-skills-section">
                                   <div className="agent-skills-title">{t("detail.skills")} ({Object.keys(agent.agentSkills).length})</div>
                                   {Object.entries(agent.agentSkills).map(([skillName, skillData]) => (
-                                    <div key={skillName} className="agent-skill-item">
-                                      <span className="agent-skill-name">{skillName}</span>
-                                      <div className="agent-skill-meta">
-                                        {skillData.meta?.version && <span>📦 v{skillData.meta.version}</span>}
-                                        {skillData.meta?.slug && <span>🏷️ {String(skillData.meta.slug)}</span>}
-                                        {skillData.origin?.registry && <span style={{ opacity: 0.7 }}>🌐 {String(skillData.origin.registry)}</span>}
-                                        {skillData.origin?.installedVersion && <span>📥 v{String(skillData.origin.installedVersion)}</span>}
-                                      </div>
-                                    </div>
+                                    renderSkillItem(agent.name, skillName, skillData)
                                   ))}
                                 </div>
                               )}
@@ -2321,59 +2525,91 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
           </CardContent>
         </Card>
 
-        {hasPythonContent ? (
+        {hasYamlContent ? (
           <Card className="mt-6">
             <CardHeader className="flex flex-row items-center justify-between">
-              <div className="flex flex-wrap items-center gap-2">
-                <CardTitle>{codePanelTitle}</CardTitle>
-                {hasYamlContent ? (
-                  <>
-                    <Button type="button" variant={selectedCodeType === "yaml" ? "default" : "outline"} size="sm" onClick={() => setSelectedCodeType("yaml")}>
-                      YAML
-                    </Button>
-                    <Button type="button" variant={selectedCodeType === "python" ? "default" : "outline"} size="sm" onClick={() => setSelectedCodeType("python")}>
-                      Python
-                    </Button>
-                  </>
-                ) : null}
-                {activeCodeFileName ? (
-                  <Badge variant="outline" className="text-xs">
-                    {selectedCodeType === "python" ? "<>" : "📄"} {activeCodeFileName}
-                  </Badge>
-                ) : null}
-              </div>
-              <Button variant="outline" size="sm" onClick={() => setYamlOpen((prev) => !prev)}>
-                {codeToggleLabel}
-              </Button>
-            </CardHeader>
-            {yamlOpen ? (
-              <CardContent>
-                <pre className="max-h-[520px] overflow-auto rounded-md border bg-muted p-4 text-xs leading-6 text-foreground">{activeCodeContent}</pre>
-              </CardContent>
-            ) : null}
-          </Card>
-        ) : (
-          <Card className="mt-6">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 flex-wrap items-center gap-2">
                 <CardTitle>{t("detail.yamlConfig")}</CardTitle>
-                {yamlFileEntries && selectedYamlFile && (
+                {selectedYamlFile ? (
                   <Badge variant="outline" className="text-xs">
-                    📄 {selectedYamlFile}
+                    File {selectedYamlFile}
                   </Badge>
-                )}
+                ) : null}
               </div>
-              <Button variant="outline" size="sm" onClick={() => setYamlOpen((prev) => !prev)}>
-                {yamlOpen ? t("detail.hideYaml") : t("detail.showYaml")}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setSelectedCodeType("yaml")}>
+                  YAML
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setYamlOpen((prev) => !prev)}>
+                  {yamlOpen ? t("detail.hideYaml") : t("detail.showYaml")}
+                </Button>
+              </div>
             </CardHeader>
             {yamlOpen ? (
-              <CardContent>
+              <CardContent className="space-y-3">
+                {yamlFileEntries && yamlFileEntries.length > 1 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {yamlFileEntries.map(([fileName]) => (
+                      <Button
+                        key={fileName}
+                        variant={selectedYamlFile === fileName ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setSelectedYamlFile(fileName)}
+                        className="text-xs"
+                      >
+                        File {fileName.replace(/\.ya?ml$/i, "")}
+                      </Button>
+                    ))}
+                  </div>
+                ) : null}
                 <pre className="max-h-[520px] overflow-auto rounded-md border bg-muted p-4 text-xs leading-6 text-foreground">{activeYamlContent}</pre>
               </CardContent>
             ) : null}
           </Card>
-        )}
+        ) : null}
+
+        {hasPythonContent ? (
+          <Card className="mt-6">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="flex min-w-0 flex-wrap items-center gap-2">
+                <CardTitle>Python Workflow</CardTitle>
+                {selectedPythonFile ? (
+                  <Badge variant="outline" className="text-xs">
+                    {"<>"} {selectedPythonFile}
+                  </Badge>
+                ) : null}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setSelectedCodeType("python")}>
+                  Python
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setPythonOpen((prev) => !prev)}>
+                  {pythonOpen ? "Hide Python" : "Show Python"}
+                </Button>
+              </div>
+            </CardHeader>
+            {pythonOpen ? (
+              <CardContent className="space-y-3">
+                {pythonFileEntries && pythonFileEntries.length > 1 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {pythonFileEntries.map(([fileName]) => (
+                      <Button
+                        key={fileName}
+                        variant={selectedPythonFile === fileName ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setSelectedPythonFile(fileName)}
+                        className="text-xs"
+                      >
+                        {"<>"} {fileName.replace(/\.py$/i, "")}
+                      </Button>
+                    ))}
+                  </div>
+                ) : null}
+                <pre className="max-h-[520px] overflow-auto rounded-md border bg-muted p-4 text-xs leading-6 text-foreground">{activePythonContent}</pre>
+              </CardContent>
+            ) : null}
+          </Card>
+        ) : null}
       </main>
 
       <Dialog open={loginOpen} onOpenChange={setLoginOpen}>
@@ -2398,4 +2634,3 @@ export function WorkflowDetailPage({ workflowId }: { workflowId: string }) {
     </div>
   );
 }
-

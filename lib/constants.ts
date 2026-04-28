@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { PRESET_WORKFLOW_LOCALIZATIONS } from "@/lib/preset-localizations";
-import type { Agent, Expert, Workflow } from "@/lib/types";
+import type { Agent, CronJob, Expert, SkillInfo, Workflow } from "@/lib/types";
 
 export const CLAWCROSSHUB_PORT = 51211;
 const IS_VERCEL = process.env.VERCEL === "1";
@@ -96,6 +96,126 @@ function readYamlFilesMap(snapshotDir: string): Record<string, string> | undefin
   return Object.keys(result).length ? result : undefined;
 }
 
+function readPythonFilesMap(snapshotDir: string): Record<string, string> | undefined {
+  const pythonDir = path.join(snapshotDir, "oasis", "python");
+  if (!fs.existsSync(pythonDir) || !fs.statSync(pythonDir).isDirectory()) {
+    return undefined;
+  }
+
+  const result: Record<string, string> = {};
+  fs.readdirSync(pythonDir)
+    .filter((name) => name.endsWith(".py"))
+    .sort()
+    .forEach((name) => {
+      try {
+        result[name] = fs.readFileSync(path.join(pythonDir, name), "utf-8");
+      } catch {
+        // ignore malformed file
+      }
+    });
+
+  return Object.keys(result).length ? result : undefined;
+}
+
+function collectFiles(dir: string, prefix = ""): string[] {
+  if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) {
+    return [];
+  }
+
+  return fs.readdirSync(dir).flatMap((name) => {
+    const fullPath = path.join(dir, name);
+    const relPath = prefix ? `${prefix}/${name}` : name;
+    try {
+      if (fs.statSync(fullPath).isDirectory()) {
+        return collectFiles(fullPath, relPath);
+      }
+      return [relPath];
+    } catch {
+      return [];
+    }
+  });
+}
+
+function readSkillsInfo(snapshotDir: string): Record<string, Record<string, SkillInfo>> | undefined {
+  const skillsDir = path.join(snapshotDir, "skills");
+  const files = collectFiles(skillsDir).sort();
+  if (!files.length) {
+    return undefined;
+  }
+
+  const result: Record<string, Record<string, SkillInfo>> = {};
+  files.forEach((relPath) => {
+    const parts = relPath.split("/");
+    if (parts.length < 2) {
+      return;
+    }
+
+    const usesAgentNamespace =
+      parts.length >= 3 &&
+      !["SKILL.md", "README.md", "PACKAGE.md", "INSTALLATION.md", "UPLOAD_INSTRUCTIONS.md", "openclaw.skill.json", "clawhub.json", "_meta.json"].includes(parts[1]) &&
+      !parts[1].startsWith(".");
+    const agentName = usesAgentNamespace ? parts[0] : "_team";
+    const skillName = usesAgentNamespace ? parts[1] : parts[0];
+    const base = path.basename(relPath);
+
+    result[agentName] ??= {};
+    result[agentName][skillName] ??= {};
+    result[agentName][skillName].files ??= [];
+    result[agentName][skillName].files.push(relPath.slice(skillName.length + (usesAgentNamespace ? agentName.length + 2 : 1)));
+
+    if (base === "_meta.json" || base === "origin.json") {
+      const parsed = readJsonFile<Record<string, unknown> | null>(path.join(skillsDir, relPath), null);
+      if (parsed) {
+        if (base === "_meta.json") {
+          result[agentName][skillName].meta = parsed as NonNullable<SkillInfo["meta"]>;
+        } else {
+          result[agentName][skillName].origin = parsed as NonNullable<SkillInfo["origin"]>;
+        }
+      }
+    }
+  });
+
+  return Object.keys(result).length ? result : undefined;
+}
+
+function readSkillsData(snapshotDir: string): Record<string, string> | undefined {
+  const skillsDir = path.join(snapshotDir, "skills");
+  const files = collectFiles(skillsDir).sort();
+  if (!files.length) {
+    return undefined;
+  }
+
+  const result: Record<string, string> = {};
+  files.forEach((relPath) => {
+    try {
+      result[`skills/${relPath}`] = fs.readFileSync(path.join(skillsDir, relPath)).toString("base64");
+    } catch {
+      // ignore unreadable skill file
+    }
+  });
+  return Object.keys(result).length ? result : undefined;
+}
+
+function readCronJobs(snapshotDir: string): Record<string, CronJob[]> | undefined {
+  const raw = readJsonFile<unknown>(path.join(snapshotDir, "cron_jobs.json"), null);
+  if (!raw || typeof raw !== "object") {
+    return undefined;
+  }
+  if (Array.isArray(raw)) {
+    return raw.length ? { _team: raw.filter((item) => item && typeof item === "object") as CronJob[] } : undefined;
+  }
+
+  const result: Record<string, CronJob[]> = {};
+  Object.entries(raw as Record<string, unknown>).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      result[key] = value.filter((item) => item && typeof item === "object") as CronJob[];
+    } else if (value && typeof value === "object") {
+      result[key] = [value as CronJob];
+    }
+  });
+  return Object.keys(result).length ? result : undefined;
+}
+
 function buildLocalSnapshotWorkflow(options: {
   id: string;
   title: string;
@@ -108,22 +228,30 @@ function buildLocalSnapshotWorkflow(options: {
   author?: string;
   primaryYamlFile?: string;
 }): Workflow | null {
-  const snapshotDir = path.join(WORKSPACE_ROOT, options.snapshotDirName);
+  const snapshotDir = path.isAbsolute(options.snapshotDirName)
+    ? options.snapshotDirName
+    : resolveSharedPath(options.snapshotDirName);
   if (!fs.existsSync(snapshotDir) || !fs.statSync(snapshotDir).isDirectory()) {
     return null;
   }
 
   const yamlFiles = readYamlFilesMap(snapshotDir);
   const yamlEntries = yamlFiles ? Object.entries(yamlFiles) : [];
+  const pythonFiles = readPythonFilesMap(snapshotDir);
+  const pythonEntries = pythonFiles ? Object.entries(pythonFiles) : [];
   const primaryYaml =
     (options.primaryYamlFile && yamlFiles?.[options.primaryYamlFile]) ||
     yamlEntries.find(([name]) => name === "fullflow.yaml")?.[1] ||
     yamlEntries[0]?.[1] ||
     "";
+  const primaryPython = pythonEntries[0]?.[1];
 
   const internalAgents = readJsonFile<Agent[]>(path.join(snapshotDir, "internal_agents.json"), []);
   const externalAgents = readJsonFile<Agent[]>(path.join(snapshotDir, "external_agents.json"), []);
   const expertsDetail = readJsonFile<Expert[]>(path.join(snapshotDir, "oasis_experts.json"), []);
+  const skillsInfo = readSkillsInfo(snapshotDir);
+  const skillsData = readSkillsData(snapshotDir);
+  const cronJobs = readCronJobs(snapshotDir);
 
   return {
     id: options.id,
@@ -143,7 +271,12 @@ function buildLocalSnapshotWorkflow(options: {
     openclaw_agents: externalAgents,
     experts_detail: expertsDetail,
     experts: expertsDetail,
-    yaml_files: yamlFiles
+    yaml_files: yamlFiles,
+    python_content: primaryPython,
+    python_files: pythonFiles,
+    skills_info: skillsInfo,
+    skills_data: skillsData,
+    cron_jobs: cronJobs
   };
 }
 
@@ -531,6 +664,18 @@ edges:
     snapshotDirName: "team_狼人杀Game_snapshot",
     detail:
       "Imported from a local Team snapshot. This pack focuses on agent personas rather than a YAML execution graph: the judge orchestrates the game and the players each follow role-specific speaking, voting, and night-action rules."
+  }),
+  buildLocalSnapshotWorkflow({
+    id: "code_ppt_fusion_team",
+    title: "Code PPT Fusion Team",
+    description: "A development showcase team combining Oasis agents, external Claude agents, reusable skills, and delivery workflows.",
+    category: "Engineering",
+    tags: ["team", "snapshot", "engineering", "ppt", "claude", "research"],
+    icon: "🧩",
+    snapshotDirName: "data/user_files/default/teams/开发展示团队",
+    primaryYamlFile: "test.yaml",
+    detail:
+      "Imported from the local ClawCross team export. The snapshot preserves external agent definitions, team-level skills, YAML orchestration, and metadata needed for round-trip download."
   })
 ];
 
